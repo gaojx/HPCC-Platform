@@ -4415,6 +4415,12 @@ public:
         return totalCycles;
     }
 
+    void gatherStats(CRuntimeStatisticCollection & merged) const
+    {
+        if (rowAllocator)
+            rowAllocator->gatherStats(merged);
+    }
+
     const void * nextRowGE(const void *seek, const void *rawSeek, unsigned numFields, unsigned seekLen, bool &wasCompleteMatch, const SmartStepExtra & stepExtra)
     {
         if (activity.queryLogCtx().queryTraceLevel() > 20)
@@ -7604,6 +7610,13 @@ class CRoxieServerHashDedupActivity : public CRoxieServerActivity
             addNew(new HashDedupElement(hash, nextrow), hash);
             return true;
         }
+
+        void gatherStats(CRuntimeStatisticCollection & merged) const
+        {
+            if (keyRowAllocator)
+                keyRowAllocator->gatherStats(merged);
+        }
+
     private:
         IHThorHashDedupArg & helper;
         CachedOutputMetaData keySize;
@@ -16879,6 +16892,15 @@ public:
         return processor.queryInputSteppingMeta();
     }
 
+    virtual void gatherStats(CRuntimeStatisticCollection & merged) const override
+    {
+        CRoxieServerNaryActivity::gatherStats(merged);
+        if (inputAllocator)
+            inputAllocator->gatherStats(merged);
+        if (outputAllocator)
+            outputAllocator->gatherStats(merged);
+    }
+
 protected:
     IHThorNWayMergeJoinArg & helper;
     CMergeJoinProcessor & processor;
@@ -17168,6 +17190,11 @@ public:
     {
         throwUnexpected(); // I am nobody's input
     }
+    virtual void gatherStats(CRuntimeStatisticCollection & merged) const override
+    {
+        CRoxieServerActivity::gatherStats(merged);
+        remote.gatherStats(merged);
+    }
 };
 
 class CRoxieServerRemoteActivityFactory : public CRoxieServerActivityFactory
@@ -17373,6 +17400,13 @@ public:
         {
             throw makeWrappedException(E);
         }
+    }
+
+    virtual void gatherStats(CRuntimeStatisticCollection & merged) const override
+    {
+        CRoxieServerActivity::gatherStats(merged);
+        if (rightRowAllocator)
+            rightRowAllocator->gatherStats(merged);
     }
 };
 
@@ -21576,6 +21610,13 @@ public:
             return rowBuilder.finalizeRowClear(outSize);
         return NULL;
     }
+
+    virtual void gatherStats(CRuntimeStatisticCollection & merged) const override
+    {
+        CRoxieServerActivity::gatherStats(merged);
+        if (remote)
+            remote->gatherStats(merged);
+    }
 };
 
 class CRoxieServerDiskReadActivity : public CRoxieServerDiskReadBaseActivity
@@ -22778,6 +22819,12 @@ public:
     virtual void setInput(unsigned idx, unsigned _sourceIdx, IFinalRoxieInput *_in)
     {
         throw MakeStringException(ROXIE_SET_INPUT, "Internal error: setInput() called for source activity");
+    }
+
+    virtual void gatherStats(CRuntimeStatisticCollection & merged) const override
+    {
+        CRoxieServerActivity::gatherStats(merged);
+        remote.gatherStats(merged);
     }
 };
 
@@ -24492,6 +24539,11 @@ public:
             return NULL;
     }
 
+    virtual void gatherStats(CRuntimeStatisticCollection & merged) const override
+    {
+        CRoxieServerActivity::gatherStats(merged);
+        remote.gatherStats(merged);
+    }
 
     virtual void start(unsigned parentExtractSize, const byte *parentExtract, bool paused)
     {
@@ -24546,6 +24598,7 @@ public:
             partNo = map->mapOffset(rp);
         if (needsRHS)
         {
+            //MORE: This allocator should be created once
             Owned<IEngineRowAllocator> extractAllocator = createRowAllocator(helper.queryExtractedSize());
             RtlDynamicRowBuilder rb(extractAllocator, true);
             unsigned rhsSize = helper.extractJoinFields(rb, row);
@@ -25065,6 +25118,13 @@ public:
         }
     }
 
+    void gatherStats(CRuntimeStatisticCollection & merged) const
+    {
+        CRemoteResultAdaptor::gatherStats(merged);
+        if (ccdRecordAllocator)
+            ccdRecordAllocator->gatherStats(merged);
+    }
+
 private:
     void processSlaveResults()
     {
@@ -25448,6 +25508,14 @@ public:
     {
         throwUnexpected(); // I am nobody's input
     }
+
+    virtual void gatherStats(CRuntimeStatisticCollection & merged) const override
+    {
+        CRoxieServerActivity::gatherStats(merged);
+        remote.gatherStats(merged);
+        if (indexReadAllocator)
+            indexReadAllocator->gatherStats(merged);
+    }
 };
 
 class CRoxieServerKeyedJoinBase : public CRoxieServerActivity, implements IRecordPullerCallback, implements IRoxieServerErrorHandler, implements IJoinProcessor
@@ -25585,6 +25653,12 @@ public:
         if (localCycles < 0)
             localCycles = 0;
         return localCycles;
+    }
+
+    virtual void gatherStats(CRuntimeStatisticCollection & merged) const override
+    {
+        CRoxieServerActivity::gatherStats(merged);
+        remote.gatherStats(merged);
     }
 
     virtual IFinalRoxieInput *queryInput(unsigned idx) const
@@ -25992,6 +26066,12 @@ public:
         throwUnexpected();
     }
 
+    virtual void gatherStats(CRuntimeStatisticCollection & merged) const override
+    {
+        CRoxieServerKeyedJoinBase::gatherStats(merged);
+        if (fetchInputAllocator)
+            fetchInputAllocator->gatherStats(merged);
+    }
 };
 
 #ifdef _MSC_VER
@@ -26245,6 +26325,15 @@ public:
     void processGroup(const ConstPointerArray &)
     {
         throwUnexpected();
+    }
+
+    virtual void gatherStats(CRuntimeStatisticCollection & merged) const override
+    {
+        CRoxieServerKeyedJoinBase::gatherStats(merged);
+        if (indexReadAllocator)
+            indexReadAllocator->gatherStats(merged);
+        if (joinFieldsAllocator)
+            joinFieldsAllocator->gatherStats(merged);
     }
 };
 
