@@ -1,4 +1,4 @@
-################################################################################
+﻿################################################################################
 #    HPCC SYSTEMS software Copyright (C) 2012 HPCC Systems®.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,8 +18,12 @@ IF (USE_OPENLDAP)
     HPCC_ADD_SUBDIRECTORY (ws_access "PLATFORM")
 ENDIF(USE_OPENLDAP)
 HPCC_ADD_SUBDIRECTORY (ws_account "PLATFORM")
-HPCC_ADD_SUBDIRECTORY (ws_config "PLATFORM")
-HPCC_ADD_SUBDIRECTORY (ws_configmgr "PLATFORM")
+
+IF (NOT WIN32)
+	HPCC_ADD_SUBDIRECTORY (ws_config "PLATFORM")
+	HPCC_ADD_SUBDIRECTORY (ws_configmgr "PLATFORM")
+ENDIF()
+
 HPCC_ADD_SUBDIRECTORY (ws_dfu "PLATFORM")
 HPCC_ADD_SUBDIRECTORY (ws_ecl "PLATFORM")
 HPCC_ADD_SUBDIRECTORY (ws_fileio "PLATFORM")
@@ -32,7 +36,11 @@ HPCC_ADD_SUBDIRECTORY (WsDeploy "PLATFORM")
 HPCC_ADD_SUBDIRECTORY (ws_packageprocess "PLATFORM")
 HPCC_ADD_SUBDIRECTORY (ws_esdlconfig "PLATFORM")
 HPCC_ADD_SUBDIRECTORY (esdl_svc_engine "PLATFORM")
+
+IF (BUILD_WSSQL)
 HPCC_ADD_SUBDIRECTORY (ws_sql "PLATFORM")
+ENDIF()
+
 if (LOGGING_SERVICE)
 HPCC_ADD_SUBDIRECTORY (ws_loggingservice "PLATFORM")
 endif()

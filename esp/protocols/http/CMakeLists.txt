@@ -24,6 +24,8 @@
 
 project(esphttp)
 
+include (${HPCC_SOURCE_DIR}/cmake_modules/shares.cmake)
+
 set(SRCS
     ../../bindings/bindutil.cpp
     ../../bindings/http/client/httpclient.cpp
@@ -71,7 +73,25 @@ include_directories(
 
 add_definitions(-DESPHTTP_EXPORTS -DESP_TIMING -D_USRDLL -DESP_PLUGIN)
 
-HPCC_ADD_LIBRARY(esphttp SHARED ${SRCS})
+# For easy open header files
+file (GLOB_RECURSE HEADERS 
+   ../../platform/*.h 
+   ../../platform/*.hpp 
+   ../../platform/*.ipp
+   ../../bindings/http/*.h 
+   ../../bindings/http/*.hpp 
+   ../../bindings/http/*.ipp
+   ../../bindings/SOAP/Platform/*.hpp
+   ../../bindings/SOAP/client/*.hpp
+   ${HPCC_SOURCE_DIR}/system/include/*.h
+   ${HPCC_SOURCE_DIR}/system/include/*.hpp
+)	
+
+HPCC_ADD_LIBRARY(esphttp SHARED 
+	${SRCS}
+	${HEADERS}
+)
+
 add_dependencies(esphttp  espscm)
 install(TARGETS esphttp RUNTIME DESTINATION ${EXEC_DIR} LIBRARY DESTINATION ${LIB_DIR})
 target_link_libraries(
