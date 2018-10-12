@@ -258,9 +258,9 @@ void CLZWCompressor::flushbuf()
 void CLZWCompressor::ensure(size32_t sz)
 {
     dbgassertex(outBufMb);
-    size32_t outBytesOffset = outbytes-(byte *)outbuf;
-    size32_t outBitsOffset = outbits-(byte *)outbuf;
-    size32_t outNextOffset = outnext-(byte *)outbuf;
+    size32_t outBytesOffset = SCAST_IF_x64(size32_t, outbytes-(byte *)outbuf);
+    size32_t outBitsOffset = SCAST_IF_x64(size32_t, outbits-(byte *)outbuf);
+    size32_t outNextOffset = SCAST_IF_x64(size32_t, outnext-(byte *)outbuf);
     outbuf = (byte *)outBufMb->ensureCapacity(sz);
     maxlen = outBufMb->capacity()-SAFETY_MARGIN;
     outbytes = (byte *)outbuf+outBytesOffset;
@@ -353,8 +353,8 @@ size32_t CLZWCompressor::write(const void *buf,size32_t buflen)
                         size32_t ret;
                         if (inlenblk==COMMITTED)
                         {
-                            ret = in-(unsigned char *)buf-1;
-                            inlen += in-(unsigned char *)buf-1;
+                            ret = SCAST_IF_x64(size32_t, in-(unsigned char *)buf-1);
+                            inlen += SCAST_IF_x64(size32_t, in-(unsigned char *)buf-1);
                         }
                         else
                             ret = 0;
@@ -2787,12 +2787,12 @@ MODULE_INIT(INIT_PRIORITY_STANDARD)
         virtual ICompressor *getCompressor(const char *options)
         {
             assertex(options);
-            return createAESCompressor(options, strlen(options));
+            return createAESCompressor(options, strlen32(options));
         }
         virtual IExpander *getExpander(const char *options)
         {
             assertex(options);
-            return createAESExpander(options, strlen(options));
+            return createAESExpander(options, strlen32(options));
         }
     };
     class CDiffCompressHandler : public CCompressHandlerBase

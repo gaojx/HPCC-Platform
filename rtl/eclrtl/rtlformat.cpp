@@ -381,7 +381,7 @@ void CommonXmlWriter::outputXmlns(const char *name, const char *uri)
     StringBuffer fieldname;
     if (!streq(name, "xmlns"))
         fieldname.append("xmlns:");
-    outputXmlAttrUtf8(rtlUtf8Length(strlen(uri), uri), uri, fieldname.append(name), out);
+    outputXmlAttrUtf8(rtlUtf8Length(strlen32(uri), uri), uri, fieldname.append(name), out);
 }
 
 void CommonXmlWriter::outputBeginDataset(const char *dsname, bool nestChildren)
@@ -392,7 +392,7 @@ void CommonXmlWriter::outputBeginDataset(const char *dsname, bool nestChildren)
     if (!dsname || !*dsname)
         return;
     out.append(" name='"); //single quote for backward compatibility
-    outputXmlUtf8(rtlUtf8Length(strlen(dsname), dsname), dsname, NULL, out);
+    outputXmlUtf8(rtlUtf8Length(strlen32(dsname), dsname), dsname, NULL, out);
     out.append("'");
 }
 
@@ -923,7 +923,7 @@ void CPropertyTreeWriter::outputXmlns(const char *name, const char *uri)
     if (!streq(name, "xmlns"))
         fieldname.append("xmlns:");
     StringBuffer fieldStr;
-    outputXmlUtf8(rtlUtf8Length(strlen(uri), uri), uri, nullptr, fieldStr);
+    outputXmlUtf8(rtlUtf8Length(strlen32(uri), uri), uri, nullptr, fieldStr);
     target->setProp(fieldname, fieldStr);
 }
 
@@ -933,7 +933,7 @@ void CPropertyTreeWriter::outputBeginDataset(const char *dsname, bool nestChildr
     if (!dsname || !*dsname)
         return;
     StringBuffer dsNameUtf8;
-    outputXmlUtf8(rtlUtf8Length(strlen(dsname), dsname), dsname, nullptr, dsNameUtf8);
+    outputXmlUtf8(rtlUtf8Length(strlen32(dsname), dsname), dsname, nullptr, dsNameUtf8);
     target->addProp("@name", dsNameUtf8);
 }
 
@@ -1619,7 +1619,7 @@ void CommonCSVWriter::addFieldToParentXPath(const char* fieldName)
 
 void CommonCSVWriter::removeFieldFromCurrentParentXPath(const char* fieldName)
 {
-    unsigned len = strlen(fieldName);
+    unsigned len = strlen32(fieldName);
     if (currentParentXPath.length() > len+1)
         currentParentXPath.setLength(currentParentXPath.length() - len - 1);
     else

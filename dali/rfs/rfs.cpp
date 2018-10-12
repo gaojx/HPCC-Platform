@@ -565,7 +565,7 @@ public:
     {
         if (!s)
             return append((byte)0);
-        return append(strlen(s)+1,s);
+        return append(strlen32(s)+1,s);
     }
 
     RFS_MemoryBuffer & readEndian(size_t len, void * value)
@@ -622,7 +622,7 @@ public:
 
     char *readStr()
     {
-        size_t l = strlen((char *)buffer+readPos)+1;
+        size_t l = strlen32((char *)buffer+readPos)+1;
         char *ret = (char *)malloc(l);
         memcpy(ret,buffer+readPos,l);
         readPos+=l;
@@ -742,7 +742,7 @@ public:
         if (!x)
             return;
         if ((unsigned)-1 == len)
-            len = strlen(x);
+            len = strlen32(x);
         const char *end = x+len;
         while (x<end && *x) {
             if ('&' == *x) {
@@ -862,7 +862,7 @@ public:
     {
         size_t t = out.length();
         char *s = (char *)buffer+readPos;
-        size_t l = strlen(s);
+        size_t l = strlen32(s);
         if ((l>=3)&&((memcmp(s,"/$/",3)==0)||(memcmp(s,"\\$\\",3)==0)))
             base32_Decode(s+3,out);
         else
@@ -1027,8 +1027,8 @@ public:
                 ename = es;
             }
         }
-        size_t msgsz = msg?strlen(msg):0;
-        msgsz += strlen(ename)+32;
+        size_t msgsz = msg?strlen32(msg):0;
+        msgsz += strlen32(ename)+32;
         str = (char *)malloc(msgsz);
         sprintf(str,"ERROR: %s(%d) '%s'",ename,err,msg?msg:"");
     }
@@ -1525,7 +1525,7 @@ static bool processCommand(RFS_ServerBase &base, RFS_context &context, RFS_Conne
         default: {
                 char errormsg[256];
                 strcpy(errormsg,"RFSERR_InvalidCommand:");
-                _itoa(cmd,&errormsg[strlen(errormsg)],10);
+                _itoa(cmd,&errormsg[strlen32(errormsg)],10);
                 out.clear().append(RFSERR_InvalidCommand).append(errormsg);
 
             }
@@ -1707,10 +1707,10 @@ bool installService(const char *servicename,const char *servicedisplayname,const
     if (GetModuleFileNameA( NULL, path, sizeof(path) )) {
         SC_HANDLE hSCM = OpenSCManager( NULL, NULL, SC_MANAGER_ALL_ACCESS);  // full access rights
         if (hSCM) {
-            size_t sz = strlen(path)+12;    // calc max size for command line
+            size_t sz = strlen32(path)+12;    // calc max size for command line
             for (int i0=0;i0<argc;i0++) {
                 if (argv[i0])
-                    sz += strlen(argv[i0])+1;
+                    sz += strlen32(argv[i0])+1;
             }
             char *fullpath = (char *)malloc(sz);
             strcpy(fullpath,path);
@@ -2201,7 +2201,7 @@ void RFS_ServerBase::setLogFilename(const char *filename)
             strcpy(tmp,"c:\\");
             getServiceName(sizeof(tmp)-4,tmp+3,sizeof(displayname)-1,displayname);
             ts = tmp;
-            te = ts+strlen(ts);
+            te = ts+strlen32(ts);
         }
 #endif
         while (*te) {
@@ -2215,7 +2215,7 @@ void RFS_ServerBase::setLogFilename(const char *filename)
         }
         if (!ex)
             ex = te;
-        deflogname = (char *)malloc(strlen(ts)+32);
+        deflogname = (char *)malloc(strlen32(ts)+32);
         time_t st;
         time(&st);
         struct tm *_tm = localtime(&st);
@@ -2427,7 +2427,7 @@ RFS_SimpleString::RFS_SimpleString(const char *inits,size_t initsz)
         inc = 0x1000;
     max = initsz;
     if (inits) {
-        size_t sz = strlen(inits);
+        size_t sz = strlen32(inits);
         if (sz>=max)
             max = sz+1;
         base = (char *)malloc(max);

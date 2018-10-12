@@ -132,7 +132,7 @@ extern jhtree_decl bool isIndexFile(IFile *file)
         if (io->read(0, sizeof(hdr), &hdr) != sizeof(hdr))
             return false;
         SwapBigEndian(hdr);
-        if (!hdr.root || !hdr.nodeSize || !hdr.root || size % hdr.nodeSize || hdr.root % hdr.nodeSize || hdr.root >= size)
+        if (!hdr.root || !hdr.nodeSize || !hdr.root || size % hdr.nodeSize || hdr.root % hdr.nodeSize || (size_t)hdr.root >= size)
             return false;
         return true;    // Reasonable heuristic...
     }
@@ -307,7 +307,7 @@ bool CWriteNode::add(offset_t pos, const void *indata, size32_t insize, unsigned
             lzwcomp.close();
             return false;
         }
-        hdr.keyBytes = lzwcomp.buflen() + sizeof(unsigned __int64); // rsequence added above
+        hdr.keyBytes = lzwcomp.buflen() + (int)sizeof(unsigned __int64); // rsequence added above
     }
     else
     {
@@ -427,7 +427,7 @@ CMetadataWriteNode::CMetadataWriteNode(offset_t _fpos, CKeyHdr *_keyHdr) : CWrit
 size32_t CMetadataWriteNode::set(const char * &data, size32_t &size)
 {
     assertex(fpos);
-    unsigned short written = ((size > (maxBytes-sizeof(unsigned short))) ? (maxBytes-sizeof(unsigned short)) : size);
+    unsigned short written = ((size > (maxBytes-sizeof32(unsigned short))) ? (maxBytes-sizeof32(unsigned short)) : size);
     _WINCPYREV2(keyPtr, &written);
     memcpy(keyPtr+sizeof(unsigned short), data, written);
     data += written;
@@ -448,7 +448,7 @@ size32_t CBloomFilterWriteNode::set(const byte * &data, size32_t &size)
     unsigned short written;
     _WINCPYREV2(&written, keyPtr);
 
-    unsigned short writtenThisTime = ((size > (maxBytes-written-sizeof(unsigned short))) ? (maxBytes-written-sizeof(unsigned short)) : size);
+    unsigned short writtenThisTime = ((size > (maxBytes-written-sizeof32(unsigned short))) ? (maxBytes-written-sizeof32(unsigned short)) : size);
     memcpy(keyPtr+sizeof(unsigned short)+written, data, writtenThisTime);
     data += writtenThisTime;
     size -= writtenThisTime;
@@ -628,8 +628,8 @@ void CJHTreeNode::unpack(const void *node, bool needCopy)
                 }
                 else {
                     target = (char *)keyBufMb.reserveTruncate(hdr.numKeys * keyRecLen);
-                    workRecLen = keyRecLen - sizeof(offset_t);
-                    memcpy(target, source, sizeof(offset_t));
+                    workRecLen = keyRecLen - sizeof32(offset_t);
+                    memcpy(target, source, sizeof32(offset_t));
                     source += sizeof(offset_t);
                     target += sizeof(offset_t);
                 }
@@ -638,7 +638,7 @@ void CJHTreeNode::unpack(const void *node, bool needCopy)
                 const char *prev, *next = NULL;
                 unsigned prevOffset = 0;
                 if (handleVariable)
-                    prevOffset = target-((char *)keyBufMb.bufferBase());
+                    prevOffset = SCAST_IF_x64(unsigned, target-((char *)keyBufMb.bufferBase()));
                 else
                     next = target;
 
@@ -676,7 +676,7 @@ void CJHTreeNode::unpack(const void *node, bool needCopy)
                     if (handleVariable) {
                         prev = ((char *)keyBufMb.bufferBase())+prevOffset;
                         // for next
-                        prevOffset = target-((char *)keyBufMb.bufferBase());
+                        prevOffset = SCAST_IF_x64(unsigned, target-((char *)keyBufMb.bufferBase()));
                     }
                     else {
                         prev = next;
@@ -869,7 +869,7 @@ extern jhtree_decl void validateKeyFile(const char *filename, offset_t nodePos)
         SwapBigEndian(*nodeHdr);
         if (!nodeHdr->isValid(hdr.nodeSize))
             throw MakeStringException(9, "Invalid key %s: invalid node header at position 0x%" I64F "x", filename, nodeOffset);
-        if (nodeHdr->leftSib >= size || nodeHdr->rightSib >= size)
+        if ((size_t)nodeHdr->leftSib >= size || (size_t)nodeHdr->rightSib >= size)
             throw MakeStringException(9, "Invalid key %s: out of range sibling pointers 0x%" I64F "x, 0x%" I64F "x at position 0x%" I64F "x", filename, nodeHdr->leftSib, nodeHdr->rightSib, nodeOffset);
         if (nodeHdr->crc32)
         {

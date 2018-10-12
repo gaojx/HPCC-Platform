@@ -410,7 +410,7 @@ inline static unsigned getTailIdLength(const char *xxpath, unsigned xxpathlength
     }
 
     if (!isAttribute(xpath) && xpath != xxpath) ++xpath;
-    return end-xpath;
+    return SCAST_IF_x64(unsigned,end-xpath);
 }
 
 const char *splitXPathUQ(const char *xpath, StringBuffer &path)
@@ -464,7 +464,7 @@ const char *splitXPath(const char *xpath, StringBuffer &headPath)
         return NULL;
     else if (xpath != prop)
     {
-        size32_t ps = prop-xpath-1;
+        size32_t ps = SCAST_IF_x64(size32_t,prop-xpath-1);
         headPath.append(ps, xpath);
     }
     return prop;
@@ -1038,7 +1038,7 @@ void PTree::resolveParentChild(const char *xpath, IPropertyTree *&parent, IPrope
     while (prop != xpath && *(prop-1) != '/')
         --prop;
 
-    size32_t ps = prop-xpath;
+    size32_t ps = SCAST_IF_x64(size32_t,prop-xpath);
     if (ps)
     {
         path.set(xpath, ps);
@@ -1081,7 +1081,7 @@ void PTree::resolveParentChild(const char *xpath, IPropertyTree *&parent, IPrope
         const char *pstart = prop;
         bool wild;
         readWildId(prop, wild);
-        size32_t s = prop-pstart;
+        size32_t s = SCAST_IF_x64(size32_t,prop-pstart);
         if (wild)
             throw MakeXPathException(pstart, PTreeExcpt_XPath_ParseError, s-1, "Wildcards not permitted on add");
         assertex(s);
@@ -1096,7 +1096,7 @@ void PTree::resolveParentChild(const char *xpath, IPropertyTree *&parent, IPrope
         bool wild;
         readWildId(prop, wild);
         assertex(!wild);
-        size32_t s = prop-pstart;
+        size32_t s = SCAST_IF_x64(size32_t,prop-pstart);
         if (*prop && *prop != '[')
             throw MakeXPathException(pstart, PTreeExcpt_XPath_ParseError, s, "Qualifier expected e.g. [..]");
         path.set(pstart, s);
@@ -1139,7 +1139,7 @@ void PTree::addProp(const char *xpath, const char *val)
 void PTree::appendProp(const char *xpath, const char *val)
 {
     if (!xpath || '\0' == *xpath)
-        appendLocal((size_t)strlen(val)+1, val, false);
+        appendLocal(strlen32(val)+1, val, false);
     else if (isAttribute(xpath))
     {
         StringBuffer newVal;
@@ -2051,7 +2051,7 @@ restart:
             bool wild;
             const char *start = xpath;
             readWildId(xpath, wild);
-            size32_t s = xpath-start;
+            size32_t s = SCAST_IF_x64(size32_t, xpath-start);
             if (s)
             {
                 MAKE_LSTRING(id, start, s);
@@ -2865,7 +2865,7 @@ bool PTree::checkPattern(const char *&xxpath) const
                 if (quoteEnd)
                 {
                     rhs = quoteBegin;
-                    rhslength = quoteEnd-quoteBegin;
+                    rhslength = SCAST_IF_x64(unsigned, quoteEnd-quoteBegin);
 #ifdef WARNLEGACYCOMPARE
                     if (legacynumeric)
                     {
@@ -2877,7 +2877,7 @@ bool PTree::checkPattern(const char *&xxpath) const
                 else if (rhsEnd)
                 {
                     rhs = rhsBegin;
-                    rhslength = rhsEnd-rhsBegin;
+                    rhslength = SCAST_IF_x64(unsigned, rhsEnd-rhsBegin);
                     numeric = true;
                 }
                 else
@@ -3019,7 +3019,7 @@ bool LocalPTree::removeAttribute(const char *key)
     if (!del)
         return false;
     numAttrs--;
-    unsigned pos = del-attrs;
+    unsigned pos = SCAST_IF_x64(unsigned, del-attrs);
     del->key.destroy();
     del->value.destroy();
     memmove(attrs+pos, attrs+pos+1, (numAttrs-pos)*sizeof(AttrValue));
@@ -3171,7 +3171,7 @@ unsigned CAtomPTree::queryHash() const
     else
     {
         const char *_name = name.get();
-        size32_t nl = strlen(_name);
+        size32_t nl = strlen32(_name);
         return isnocase() ? hashnc((const byte *) _name, nl, 0): hashc((const byte *) _name, nl, 0);
     }
 }
@@ -3264,7 +3264,7 @@ bool CAtomPTree::removeAttribute(const char *key)
     AttrValue *newattrs = newAttrArray(numAttrs);
     if (newattrs)
     {
-        unsigned pos = del-attrs;
+        unsigned pos = SCAST_IF_x64(unsigned, del-attrs);
         memcpy(newattrs, attrs, pos*sizeof(AttrValue));
         memcpy(newattrs+pos, attrs+pos+1, (numAttrs-pos)*sizeof(AttrValue));
     }
@@ -3575,7 +3575,7 @@ bool PTStackIterator::next()
                     bool wild;
                     const char *start = xxpath;
                     readWildIdIndex(xxpath, wild);
-                    size32_t s = xxpath-start;
+                    size32_t s = SCAST_IF_x64(size32_t, xxpath-start);
                     if (s)
                     {
                         qualifierText.clear().append(s, start);
@@ -5400,7 +5400,7 @@ static void _toXML(const IPropertyTree *tree, IIOStream &out, unsigned indent, u
                             encodeXML(val, out, ENCODE_NEWLINES, (unsigned)-1, true);
                         else
                         {
-                            writeCharsNToStream(out, '*', strlen(val));
+                            writeCharsNToStream(out, '*', strlen32(val));
                         }
                     }
                     else
@@ -5467,7 +5467,7 @@ static void _toXML(const IPropertyTree *tree, IIOStream &out, unsigned indent, u
                 if (strcmp(thislevel, "0")==0 || strcmp(thislevel, "1")==0 || stricmp(thislevel, "true")==0 || stricmp(thislevel, "false")==0 || stricmp(thislevel, "yes")==0 || stricmp(thislevel, "no")==0)
                     writeStringToStream(out, thislevel);
                 else
-                    writeCharsNToStream(out, '*', strlen(thislevel));
+                    writeCharsNToStream(out, '*', strlen32(thislevel));
             }
         }
         else if (isBinary)
@@ -5510,13 +5510,13 @@ static void _toXML(const IPropertyTree *tree, IIOStream &out, unsigned indent, u
                 const char *p = m;
                 while (isspace(*p)) 
                     p++;
-                encodeXML(m, out, ENCODE_WHITESPACE, p-m, true);
+                encodeXML(m, out, ENCODE_WHITESPACE, SCAST_IF_x64(unsigned, p-m), true);
                 if (*p) {   // check not all spaces
                     const char *s = p+strlen(p);
                     while (isspace(*(s-1)))
                         s--;
                     assertex(s>p);
-                    encodeXML(p, out, 0, s-p, true);
+                    encodeXML(p, out, 0, SCAST_IF_x64(unsigned, s-p), true);
                     encodeXML(s, out, ENCODE_WHITESPACE, (unsigned)-1, true);
                 }
             }
@@ -5636,7 +5636,7 @@ static void writeJSONValueToStream(IIOStream &out, const char *val, bool &delimi
     }
     writeCharToStream(out, '"');
     if (hidden)
-        writeCharsNToStream(out, '*', strlen(val));
+        writeCharsNToStream(out, '*', strlen32(val));
     else
     {
         StringBuffer s;
@@ -5950,7 +5950,7 @@ restart:
                 bool wild;
                 const char *start = xpath;
                 readWildId(xpath, wild); // validates also
-                size32_t s = xpath-start;
+                size32_t s = SCAST_IF_x64(size32_t, xpath-start);
                 if (s)
                 {
                     StringAttr id(start, s);
@@ -5977,7 +5977,7 @@ restart:
                     ++xpath;
                     const char *start = xpath;
                     readID(xpath, false);
-                    size32_t s = xpath-start;
+                    size32_t s = SCAST_IF_x64(size32_t, xpath-start);
                     if (!s)
                         throw MakeXPathException(start, PTreeExcpt_XPath_ParseError, xpath-start, "Missing attribute?");
                     StringAttr id(start, s);
@@ -6024,7 +6024,7 @@ bool validateXPathSyntax(const char *xpath, StringBuffer *error)
 
 static bool isContentXPath(const char *xpath, StringBuffer &head)
 {
-    unsigned l = xpath?strlen(xpath):0;
+    unsigned l = xpath?strlen32(xpath):0;
     const char *x = xpath+l-2;
     if (l>=2 && 0==strcmp(XMLTAG_CONTENT, x))
     {

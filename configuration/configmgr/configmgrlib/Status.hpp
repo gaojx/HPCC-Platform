@@ -23,7 +23,7 @@
 #include <string>
 #include "platform.h"
 
-
+#pragma warning (disable:4251)
 
 struct DECL_EXPORT statusMsg {
 
@@ -35,7 +35,6 @@ struct DECL_EXPORT statusMsg {
         error,
         fatal
     };
-
     statusMsg(enum msgLevel _msgLevel, const std::string &_nodeId, const std::string &attrName, const std::string &_msg) :
         msgLevel(_msgLevel), nodeId(_nodeId), attribute(attrName), msg(_msg) { }
     msgLevel msgLevel;                // Message level
@@ -43,7 +42,6 @@ struct DECL_EXPORT statusMsg {
     std::string attribute;            // possible name of attribute in nodeId
     std::string msg;                  // message for user
 };
-
 
 class DECL_EXPORT Status
 {

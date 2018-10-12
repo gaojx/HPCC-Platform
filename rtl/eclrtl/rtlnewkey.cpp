@@ -49,11 +49,11 @@ static void readString(StringBuffer &out, const char * &in)
     }
     StringBuffer errmsg;
     unsigned errpos;
-    if (!checkUnicodeLiteral(start, in-start-1, errpos, errmsg))
+    if (!checkUnicodeLiteral(start, SCAST_IF_x64(size32_t, in-start-1), errpos, errmsg))
         throw makeStringExceptionV(0, "Invalid filter - %s", errmsg.str());
     rtlDataAttr temp;
     size32_t newlen = 0;  // NOTE - this will be in codepoints, not bytes
-    rtlCodepageToUtf8XUnescape(newlen, temp.refstr(), in-start-1, start, "UTF-8");
+    rtlCodepageToUtf8XUnescape(newlen, temp.refstr(), SCAST_IF_x64(size32_t, in-start-1), start, "UTF-8");
     size32_t newsize = rtlUtf8Size(newlen, temp.getstr());
     out.append(newsize, temp.getstr());
 }
@@ -920,7 +920,7 @@ public:
 
     virtual int compareHighest(const byte * field, unsigned range) const override;
 
-    virtual int findForwardMatchRange(const byte * field, unsigned & matchRange) const override;   // why int - seems to return bool
+    virtual bool findForwardMatchRange(const byte * field, unsigned & matchRange) const override;   // why int - seems to return bool
 
     // Does this field match any range?
     virtual bool matches(const byte * field) const override;
@@ -1213,7 +1213,7 @@ int ValueSet::checkNextCandidateRange(const byte * field, unsigned & curRange) c
 //If field is outside a range return false and set matchRange to the index of the next range, i.e. min(range.lower) where range.lower > field
 //Find the largest transition value that is <= field, and then check if within upper limit
 //Could have a version that starts from the previous match to shorten the binary chop, or use a linear search instead
-int ValueSet::findForwardMatchRange(const byte * field, unsigned & matchRange) const
+bool ValueSet::findForwardMatchRange(const byte * field, unsigned & matchRange) const
 {
     unsigned ranges = numRanges();
     unsigned high = ranges;
@@ -1325,7 +1325,7 @@ public:
     virtual unsigned numRanges() const override;
     virtual int compareLowest(const RtlRow & left, unsigned range) const override;
     virtual int compareHighest(const RtlRow & left, unsigned range) const override;
-    virtual int findForwardMatchRange(const RtlRow & row, unsigned & matchRange) const override;
+    virtual bool findForwardMatchRange(const RtlRow & row, unsigned & matchRange) const override;
 
     virtual IFieldFilter *remap(unsigned newField) const override { return new SetFieldFilter(newField, values); }
     virtual StringBuffer & serialize(StringBuffer & out) const override;
@@ -1380,7 +1380,7 @@ int SetFieldFilter::compareHighest(const RtlRow & left, unsigned range) const
     return values->compareHighest(left.queryField(field), range);
 }
 
-int SetFieldFilter::findForwardMatchRange(const RtlRow & row, unsigned & matchRange) const
+bool SetFieldFilter::findForwardMatchRange(const RtlRow & row, unsigned & matchRange) const
 {
     return values->findForwardMatchRange(row.queryField(field), matchRange);
 }
@@ -1433,7 +1433,7 @@ public:
     virtual unsigned numRanges() const override { return 1; };
     virtual int compareLowest(const RtlRow & left, unsigned range) const override;
     virtual int compareHighest(const RtlRow & left, unsigned range) const override;
-    virtual int findForwardMatchRange(const RtlRow & row, unsigned & matchRange) const override;
+    virtual bool findForwardMatchRange(const RtlRow & row, unsigned & matchRange) const override;
 
     virtual IFieldFilter *remap(unsigned newField) const override { return new SingleFieldFilter(newField, type, value); }
     virtual StringBuffer & serialize(StringBuffer & out) const override;
@@ -1491,7 +1491,7 @@ bool SingleFieldFilter::getBloomHash(hash64_t &hash) const
     return true;
 }
 
-int SingleFieldFilter::findForwardMatchRange(const RtlRow & row, unsigned & matchRange) const
+bool SingleFieldFilter::findForwardMatchRange(const RtlRow & row, unsigned & matchRange) const
 {
     int rc = type.compare(row.queryField(field), value);
     if (rc==0)
@@ -1677,7 +1677,7 @@ public:
 //More complex index matching
     virtual int compareLowest(const RtlRow & left, unsigned range) const override;
     virtual int compareHighest(const RtlRow & left, unsigned range) const override;
-    virtual int findForwardMatchRange(const RtlRow & row, unsigned & matchRange) const override;
+    virtual bool findForwardMatchRange(const RtlRow & row, unsigned & matchRange) const override;
 
     virtual IFieldFilter *remap(unsigned newField) const override { return new VariableSubStringFieldFilter(newField, type, subType, values); }
 
@@ -1728,7 +1728,7 @@ int VariableSubStringFieldFilter::compareHighest(const RtlRow & left, unsigned r
     return values->compareHighest(temp, range);
 }
 
-int VariableSubStringFieldFilter::findForwardMatchRange(const RtlRow & row, unsigned & matchRange) const
+bool VariableSubStringFieldFilter::findForwardMatchRange(const RtlRow & row, unsigned & matchRange) const
 {
     const byte * ptr = row.queryField(field);
     size32_t len = *reinterpret_cast<const size32_t *>(ptr);
@@ -1848,7 +1848,7 @@ public:
         return -1;
     }
 
-    virtual int findForwardMatchRange(const RtlRow & row, unsigned & matchRange) const override
+    virtual bool findForwardMatchRange(const RtlRow & row, unsigned & matchRange) const override
     {
         matchRange = 0;
         return true;
@@ -2254,7 +2254,7 @@ bool RowCursor::findNextRange(unsigned field)
             //if (filter.incrementValue(currentRow))
             //    nextUnmatchedRange = 0;
             //else
-            nextUnmatchedRange = -1U;
+            nextUnmatchedRange = (unsigned)-1; 
             return false;
         }
 

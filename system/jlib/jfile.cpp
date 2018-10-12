@@ -347,7 +347,7 @@ bool localCreateDirectory(const char *name)
 {
     if (!name)
         return false;
-    size32_t l = (size32_t)strlen(name);
+    size32_t l = strlen32(name);
     if (l==0)
         return true;
     if (isPathSepChar(name[0])&&((l==1)||(isPathSepChar(name[1])&&!containsPathSepChar(name+2))))
@@ -1209,7 +1209,7 @@ static bool parseShare(const char *filename,IpAddress &machine,StringBuffer &sha
         end++;
     if (!*end)
         return false;
-    StringBuffer ipText(end-start, start);
+    StringBuffer ipText(SCAST_IF_x64(unsigned,end-start), start);
     machine.ipset(ipText.str());
     end++;  
     while (*end && !isPathSepChar(*end))
@@ -3145,7 +3145,7 @@ void splitFilename(const char * filename, StringBuffer * drive, StringBuffer * p
     if (path)
         path->append(tdir);
     if (tail)
-        tail->append(longExtStart ? longExtStart-ttail : strlen(ttail), ttail);
+        tail->append(longExtStart ? longExtStart-ttail : strlen32(ttail), ttail);
     if (ext)
     {
         if (longExtStart)
@@ -3362,7 +3362,7 @@ public:
         StringBuffer tmp;
         if (!_path || !*_path) 
             _path = "." PATHSEPSTR;
-        else if (_path[strlen(_path)-1] != PATHSEPCHAR)
+        else if (_path[strlen32(_path)-1] != PATHSEPCHAR)
             _path = tmp.append(_path).append(PATHSEPCHAR);
         path.set(_path);
         mask.set(_mask);
@@ -4608,8 +4608,8 @@ void RemoteFilename::setPath(const SocketEndpoint & _ep, const char * _filename)
                 const char *tail;
                 tail=strchr(filename+1,'/');
                 if (tail) {
-                    sharehead.set(filename,tail-filename); // we don't know share so guess same as leading dir
-                    localhead.set(filename,tail-filename); 
+                    sharehead.set(filename, SCAST_IF_x64(unsigned, tail-filename)); // we don't know share so guess same as leading dir
+                    localhead.set(filename, SCAST_IF_x64(unsigned, tail-filename));
                     filename = tail;
                 }
             }
@@ -4626,7 +4626,7 @@ void RemoteFilename::setPath(const SocketEndpoint & _ep, const char * _filename)
                 const char *tail = strchr(filename+1,'\\');
                 if (tail) {
                     sharestr.append(tail-filename,filename);
-                    localhead.set(filename,tail-filename);
+                    localhead.set(filename,SCAST_IF_x64(size32_t,tail-filename));
                     filename = tail;
                 }
                 else {
@@ -4657,7 +4657,7 @@ void RemoteFilename::setRemotePath(const char * _url,const char *localpath)
         url+=2;
         const char *end = findPathSepChar(url);
         if (end) {
-            StringBuffer eps(end-url,url);
+            StringBuffer eps(SCAST_IF_x64(size32_t, end-url),url);
             ep.set(eps.str());
             url = end;
         }
@@ -4681,7 +4681,7 @@ void RemoteFilename::setRemotePath(const char * _url,const char *localpath)
         // url should point to the share now
         const char *tail=findPathSepChar(url+1); 
         if (tail) { // hopefully must be!
-            sharehead.set(url,tail-url);
+            sharehead.set(url, SCAST_IF_x64(size32_t, tail-url));
             url = tail;
         }
         if (localhead.length()==0) { // we don't know so guess
@@ -4918,7 +4918,7 @@ void RemoteMultiFilename::expandWild()
                 t = sep+1;
             }
             StringAttr tail(t);
-            name.setLength(t-s);
+            name.setLength(SCAST_IF_x64(unsigned, t-s));
             rfn.setPath(rfn.queryEndpoint(),name);
             Owned<IFile> dir = createIFile(rfn);
             Owned<IDirectoryIterator> iter = dir->directoryFiles(tail.get());
@@ -5189,9 +5189,9 @@ StringBuffer &makeAbsolutePath(const char *relpath,StringBuffer &out, bool mustE
     else
     {
         // no error, will attempt to resolve(realpath) as much of relpath as possible and append rest
-        if (strlen(relpath))
+        if (strlen32(relpath))
         {
-            const char *end = relpath+strlen(relpath);
+            const char *end = relpath+strlen32(relpath);
             const char *path = relpath;
             const char *tail = end;
             StringBuffer head;
@@ -5224,7 +5224,7 @@ StringBuffer &makeAbsolutePath(const char *relpath,StringBuffer &out, bool mustE
         else
         {
             appendCurrentDirectory(out, true);
-            if (strlen(relpath))
+            if (strlen32(relpath))
                 addPathSepChar(out).append(relpath);
         }
     }
@@ -5251,7 +5251,7 @@ StringBuffer &makeAbsolutePath(const char *relpath, const char *basedir, StringB
 const char *splitRelativePath(const char *full,const char *basedir,StringBuffer &reldir)
 {
     if (basedir&&*basedir) {
-        size_t bl = strlen(basedir);
+        size32_t bl = strlen32(basedir);
         if (isPathSepChar(basedir[bl-1]))
             bl--;
         if ((memicmp(full,basedir,bl)==0)&&isPathSepChar(full[bl]))
@@ -5374,8 +5374,8 @@ void ExtractedBlobInfo::deserialize(MemoryBuffer & buffer)
 
 static void * readLength(MemoryBuffer & buffer, IFileIOStream * in, size_t len, const char * filenameText)
 {
-    void * ptr = buffer.clear().reserve(len);
-    if (in->read(len, ptr) != len)
+    void * ptr = buffer.clear().reserve(SCAST_IF_x64(unsigned, len));
+    if (in->read(SCAST_IF_x64(size32_t, len), ptr) != len)
         throwError1(DFTERR_InvalidSplitPrefixFormat, filenameText);
     return ptr;
 }
@@ -5403,7 +5403,7 @@ void extractBlobElements(const char * prefix, const RemoteFilename &filename, Ex
             const char * comma = strchr(finger, ',');
             if (comma)
             {
-                command.set(finger, comma-finger);
+                command.set(finger, SCAST_IF_x64(unsigned, comma-finger));
                 finger = comma+1;
             }
             else

@@ -114,7 +114,7 @@ size32_t CThorStreamDeserializerSource::readVStr(ARowBuilder & target, size32_t 
         const byte * cur = doPeek(1, available);
 
         const byte * end = static_cast<const byte *>(memchr(cur, 0, available));
-        size32_t copyLen = end ? (end+1) - cur : available;
+        size32_t copyLen = SCAST_IF_x64(size32_t,end ? (end+1) - cur : available);
 
         byte * self = target.ensureCapacity(fixedSize + totalSize + copyLen, NULL);
         doRead(copyLen, self+offset+totalSize);

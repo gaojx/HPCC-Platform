@@ -231,7 +231,7 @@ public:
                 break;
             }
         }
-        mlfn.setLength(start-s); // Just keep the prefix (anything before leading {)
+        mlfn.setLength(SCAST_IF_x64(size32_t,start-s)); // Just keep the prefix (anything before leading {)
         CMultiDLFN *ret =  new CMultiDLFN(mlfn.str(), lfns);
         if (ret->ordinality() || anywilds)
             return ret;
@@ -245,7 +245,7 @@ public:
         return dlfns.at(idx);
     }
 
-    inline unsigned ordinality() const { return dlfns.size(); }
+    inline unsigned ordinality() const { return SCAST_IF_x64(unsigned,dlfns.size()); }
     inline bool isExpanded()     const { return expanded; }
 };
 
@@ -474,14 +474,14 @@ void CDfsLogicalFileName::normalizeName(const char *name, StringAttr &res, bool 
                 str.append('.');
             else
             {
-                normalizeScope(name, name, s-name, str, strict);
+				normalizeScope(name, name, SCAST_IF_x64(unsigned,s-name), str, strict);
                 if (strieq(FOREIGN_SCOPE, str)) // normalize node
                 {
                     const char *s1 = s+2;
                     const char *ns1 = strstr(s1,"::");
                     if (ns1)
                     {
-                        normalizeNodeName(s1, ns1-s1, foreignep, strict);
+						normalizeNodeName(s1, SCAST_IF_x64(size32_t,ns1-s1), foreignep, strict);
                         if (!foreignep.isNull())
                         {
                             foreignep.getUrlStr(str.append("::"));
@@ -507,7 +507,7 @@ void CDfsLogicalFileName::normalizeName(const char *name, StringAttr &res, bool 
                 if (!ns)
                     break;
                 scopeStart = str.length();
-                normalizeScope(name, s, ns-s, str, strict);
+                normalizeScope(name, s, SCAST_IF_x64(size32_t,ns-s), str, strict);
                 unsigned scopeLen = str.length()-scopeStart;
                 if ((1 == scopeLen) && (*SELF_SCOPE == str.charAt(str.length()-1)) && selfScopeTranslation)
                     skipScope = true;
@@ -520,7 +520,7 @@ void CDfsLogicalFileName::normalizeName(const char *name, StringAttr &res, bool 
             str.append(".::");
         }
         tailpos = str.length();
-        normalizeScope(name, s, strlen(name)-(s-name), str, strict);
+        normalizeScope(name, s, strlen32(name)-SCAST_IF_x64(unsigned,s-name), str, strict);
         unsigned scopeLen = str.length()-tailpos;
         if ((1 == scopeLen) && (*SELF_SCOPE == str.charAt(str.length()-1)))
             throw MakeStringException(-1, "Logical filename cannot end with scope \".\"");
@@ -544,7 +544,7 @@ bool CDfsLogicalFileName::normalizeExternal(const char * name, StringAttr &res, 
         lfn.clear();
         StringBuffer str;
         const char *s=strstr(name,"::");
-        normalizeScope(name, name, s-name, str, strict);
+        normalizeScope(name, name, SCAST_IF_x64(unsigned,s-name), str, strict);
 
         const char *s1 = s+2;
         const char *ns1 = strstr(s1,"::");
@@ -553,7 +553,7 @@ bool CDfsLogicalFileName::normalizeExternal(const char * name, StringAttr &res, 
         else
         {
             SocketEndpoint ep;
-            normalizeNodeName(s1, ns1-s1, ep, strict);
+            normalizeNodeName(s1, SCAST_IF_x64(unsigned,ns1-s1), ep, strict);
             if (ep.isNull())
                 retVal = false;
             else
@@ -690,7 +690,7 @@ void CDfsLogicalFileName::setForeign(const SocketEndpoint &daliep,bool checkloca
 
 static bool begins(const char *&ln,const char *pat)
 {
-    size32_t sz = strlen(pat);
+    size32_t sz = strlen32(pat);
     if (memicmp(ln,pat,sz)==0) {
         ln += sz;
         return true;
@@ -810,7 +810,7 @@ void CDfsLogicalFileName::setExternal(const char *location,const char *path)
         str.append("::");
     StringBuffer urlencoded;
     if (*path == '$') {
-        size32_t l = strlen(path);
+        size32_t l = strlen32(path);
         if (l>1) {
             str.append("$::");
             JBASE32_Encode(path+1, str);
@@ -1081,7 +1081,7 @@ bool CDfsLogicalFileName::getEp(SocketEndpoint &ep) const
             WARNLOG("CDfsLogicalFileName::getEp called on multi-lfn %s",get());
         const char *e = strstr(ns,"::");
         if (e) {
-            StringBuffer node(e-ns,ns);
+            StringBuffer node(SCAST_IF_x64(size32_t,e-ns),ns);
             ep.set(node.str());
             return !ep.isNull();
         }
@@ -1856,7 +1856,7 @@ public:
         }
         if (!v)
             v = "";
-        size32_t l = strlen(v)+1;
+        size32_t l = strlen32(v)+1;
         val = (char *)buf.alloc(l);
         memcpy(val,v,l);
     }
@@ -2553,9 +2553,9 @@ void getLogicalFileSuperSubList(MemoryBuffer &mb, IUserDescriptor *user)
                     const char *subname = sub->queryProp("@name");
                     if (subname&&*subname) {
                         if (!supermap.getValue(subname)) {
-                            size32_t sz = strlen(supername);
+                            size32_t sz = strlen32(supername);
                             mb.append(sz).append(sz,supername);
-                            sz = strlen(subname);
+                            sz = strlen32(subname);
                             mb.append(sz).append(sz,subname);
                         }
                     }
@@ -2857,10 +2857,10 @@ public:
                 const char *s = (const char *)buf.bufferBase();
                 for (unsigned i=0;*s&&(i<nmaps);i++) {
                     maps[i].pat = s;
-                    const char *r = s+strlen(s)+1;
+                    const char *r = s+strlen32(s)+1;
                     maps[i].repl = r;
                     maps[i].iswild = (strchr(s,'*')||strchr(s,'?')||strchr(r,'$'));
-                    s = r+strlen(r)+1;
+                    s = r+strlen32(r)+1;
                 }
                 // future stuff added here
             }
@@ -2900,9 +2900,9 @@ public:
                 mbout.append(targpat);
                 mbout.append(targrepl);
             }
-            size32_t ls = strlen(s)+1;
+            size32_t ls = strlen32(s)+1;
             const char *r = s+ls;
-            size32_t lr = strlen(r)+1;
+            size32_t lr = strlen32(r)+1;
             // see if matches (to delete old)
             if (stricmp(targpat,s)!=0) {
                 no++;

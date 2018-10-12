@@ -27,10 +27,10 @@ BloomFilter::BloomFilter(unsigned _cardinality, double _probability)
 {
     unsigned cardinality = _cardinality ? _cardinality : 1;
     double probability = _probability >= 0.3 ? 0.3 : (_probability < 0.01 ? 0.01 : _probability);
-    numBits = rtlRoundUp(-(cardinality*log(probability))/pow(log(2),2));
+    numBits = SCAST_IF_x64(unsigned, rtlRoundUp(-(cardinality*log(probability))/pow(log(2),2)));
     unsigned tableSize = (numBits + 7) / 8;
     numBits = tableSize * 8;
-    numHashes = round((numBits * log(2))/cardinality);
+    numHashes = static_cast<unsigned>(round((numBits * log(2))/cardinality));
     table = (byte *) calloc(tableSize, 1);
 }
 
@@ -86,7 +86,7 @@ int IndexBloomFilter::compare(CInterface *const *_a, CInterface *const *_b)
 {
     const IndexBloomFilter *a = static_cast<IndexBloomFilter *>(*_a);
     const IndexBloomFilter *b = static_cast<IndexBloomFilter *>(*_b);
-    return a->fields - b->fields;
+    return SCAST_IF_x64(int,a->fields - b->fields);
 }
 
 bool IndexBloomFilter::reject(const IIndexFilterList &filters) const
@@ -363,7 +363,8 @@ extern jhtree_decl IRowHasher *createRowHasher(const RtlRecord &recInfo, __uint6
     {
         unsigned field = ffsll(fields)-1;
         if (recInfo.isFixedOffset(field) && recInfo.queryType(field)->isFixedSize())
-           return new SimpleRowHasher(recInfo, fields, recInfo.getFixedOffset(field), recInfo.queryType(field)->getMinSize()); // Specialize to speed up most common case
+           return new SimpleRowHasher(recInfo, fields, SCAST_IF_x64(unsigned, recInfo.getFixedOffset(field)), 
+			   recInfo.queryType(field)->getMinSize()); // Specialize to speed up most common case
     }
     else if (!(fields & (fields+1)))   // only true if all the ones are at the lsb end...
     {

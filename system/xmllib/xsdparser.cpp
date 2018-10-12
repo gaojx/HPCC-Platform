@@ -329,7 +329,7 @@ void CRestrictionType::getSampleValue(StringBuffer& out, const char* fieldName)
             {
                 const char* name = fieldName ? fieldName : queryName();
                 out.append('[');
-                int gap = maxLength - 2 - strlen(name);
+                int gap = maxLength - 2 - strlen32(name);
                 if (gap <= 0)
                     out.append(maxLength-2, name);
                 else if (gap<=2)
@@ -410,7 +410,7 @@ void CRestrictionType::toString(StringBuffer& s, int indent, StringStack& parent
         case RF_Enumeration:
             {
                 s.append(", enumeration={");
-                for (int i=0; i<f.value.enums->length(); i++)
+                for (unsigned i=0; i<f.value.enums->length(); i++)
                 {
                     if (i>0)
                         s.append(",");

@@ -248,7 +248,7 @@ ISashaCommand *createCommand(unsigned argc, char* argv[], SocketEndpoint &server
             if (!tail)
                 continue;
         }
-        StringBuffer head(tail-arg,arg);
+        StringBuffer head(SCAST_IF_x64(unsigned, tail-arg),arg);
         tail++;
         if (stricmp(head.str(),"action")==0) {
             if (stricmp(tail,"list")==0)

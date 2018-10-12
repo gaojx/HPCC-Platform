@@ -1535,8 +1535,8 @@ string_const
  : STRING_CONST
  | string_const STRING_CONST
  {
-     int len1 = strlen($1.getString());
-     int len2 = strlen($2.getString());
+     int len1 = strlen32($1.getString());
+     int len2 = strlen32($2.getString());
      char* s = (char*)malloc(len1+len2+1);
      memcpy(s, $1.getString(), len1);
      memcpy(s+len1, $2.getString(), len2+1);

@@ -519,7 +519,7 @@ const char * getHeaderText(FileFormatType type)
 unsigned getHeaderSize(FileFormatType type)
 {
     const char * headerText = getHeaderText(type);
-    return headerText ? strlen(headerText) : 0;
+    return headerText ? strlen32(headerText) : 0;
 }
 
 //---------------------------------------------------------------------------

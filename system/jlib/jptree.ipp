@@ -238,7 +238,7 @@ struct AttrStr
 
     static AttrStr *create(const char *k)
     {
-        size32_t kl = k ? strlen(k) : 0;
+        size32_t kl = k ? strlen32(k) : 0;
 #ifdef TRACE_ALL_STRING
         DBGLOG("TRACE_ALL_STRING: %s", k);
 #endif
@@ -334,7 +334,7 @@ struct AttrStrC : public AttrStrAtom
 {
     static inline unsigned getHash(const char *k)
     {
-        return hashc((const byte *)k, strlen(k), 17);
+        return hashc((const byte *)k, strlen32(k), 17);
     }
     inline bool eq(const char *k)
     {
@@ -342,7 +342,7 @@ struct AttrStrC : public AttrStrAtom
     }
     static AttrStrC *create(const char *k)
     {
-        size32_t kl = k ? strlen(k) : 0;
+        size32_t kl = k ? strlen32(k) : 0;
         return (AttrStrC *) AttrStrAtom::create(k, kl, hashc);
     }
 };
@@ -351,7 +351,7 @@ struct AttrStrNC : public AttrStrAtom
 {
     static inline unsigned getHash(const char *k)
     {
-        return hashnc((const byte *)k, strlen(k), 17);
+        return hashnc((const byte *)k, strlen32(k), 17);
     }
     inline bool eq(const char *k)
     {
@@ -359,7 +359,7 @@ struct AttrStrNC : public AttrStrAtom
     }
     static AttrStrNC *create(const char *k)
     {
-        size32_t kl = k ? strlen(k) : 0;
+        size32_t kl = k ? strlen32(k) : 0;
         return (AttrStrNC *) AttrStrAtom::create(k, kl, hashnc);
     }
 };
@@ -433,7 +433,7 @@ struct PtrStrUnion
     {
         if (key)
         {
-            size32_t l = strnlen(key, sizeof(PTR *));  // technically sizeof(PTR)-1 would do, but I suspect 8 bytes is actually more optimal to search than 7
+            size32_t l = static_cast<size32_t>(strnlen(key, sizeof(PTR *)));  // technically sizeof(PTR)-1 would do, but I suspect 8 bytes is actually more optimal to search than 7
             if (l <= sizeof(PTR *)-2)
             {
                 flag=1;
@@ -788,7 +788,7 @@ public:
     {
         const char *myname = queryName();
         assert(myname);
-        size32_t nl = strlen(myname);
+        size32_t nl = strlen32(myname);
         return isnocase() ? hashnc((const byte *)myname, nl, 0): hashc((const byte *)myname, nl, 0);
     }
     virtual void setName(const char *_name) override;

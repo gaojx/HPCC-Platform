@@ -565,7 +565,7 @@ void CppCompiler::extractErrors(IArrayOf<IError> & errors)
             StringAttr next;
             if (newline)
             {
-                next.set(cur, newline-cur);
+                next.set(cur, SCAST_IF_x64(unsigned,newline-cur));
                 cur = newline+1;
                 if (*cur == '\r')
                     cur++;

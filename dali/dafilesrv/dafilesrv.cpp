@@ -385,7 +385,8 @@ int main(int argc,char **argv)
     unsigned throttleSlowCPULimit = DEFAULT_SLOWCMD_THROTTLECPULIMIT;
     unsigned throttleSlowQueueLimit = DEFAULT_SLOWCMD_THROTTLEQUEUELIMIT;
 
-    unsigned dedicatedRowServicePort = DEFAULT_ROWSERVICE_PORT;
+	StringAttr rowServiceConfiguration("rowService");
+	unsigned dedicatedRowServicePort = DEFAULT_ROWSERVICE_PORT;
     bool dedicatedRowServiceSSL = defaultDedicatedRowServiceSSL;
     bool rowServiceOnStdPort = defaultRowServiceOnStdPort;
 
@@ -775,7 +776,7 @@ int main(int argc,char **argv)
                 PROGLOG("Version: %s", verstring);
                 PROGLOG("Authentication:%s required",requireauthenticate?"":" not");
                 if (dedicatedRowServicePort)
-                    PROGLOG("Row service(%s) port = %u", rowServiceConfiguration, dedicatedRowServicePort);
+                    PROGLOG("Row service(%s) port = %u", rowServiceConfiguration.get(), dedicatedRowServicePort);
                 PROGLOG(DAFS_SERVICE_DISPLAY_NAME " Running");
                 server.setown(createRemoteFileServer(maxThreads, maxThreadsDelayMs, maxAsyncCopy, keyPairInfo));
                 server->setThrottle(ThrottleStd, parallelRequestLimit, throttleDelayMs, throttleCPULimit);

@@ -2842,7 +2842,7 @@ void getHardwareInfo(HardwareInfo &hdwInfo, const char *primDiskPath, const char
 
     MEMORYSTATUS memstatus;
     GlobalMemoryStatus(&memstatus);
-    hdwInfo.totalMemory = (unsigned)(memstatus.dwTotalPhys / (1024*1024)); // in MB
+    hdwInfo.totalMemory = SCAST_IF_x64(unsigned,memstatus.dwTotalPhys / (1024*1024)); // in MB
 
     ULARGE_INTEGER diskAvailStruct;
     ULARGE_INTEGER diskTotalStruct;
@@ -3223,7 +3223,7 @@ memsize_t getHugePageSize()
         const char * hugepage = strstr(contents.str(), tag);
         if (hugepage)
         {
-            const char * next = hugepage + strlen(tag);
+            const char * next = hugepage + strlen32(tag);
             char * end;
             memsize_t size = strtoul(next, &end, 10);
             if (strncmp(end, " kB", 3) == 0)
@@ -3278,7 +3278,7 @@ static int MemoryLeakReportHook(int nRptType,char *szMsg,int  *retVal)
             // this works  better in VS 2008 libraries (which fault in fopen)
             int handle = _open(_logFile, O_RDWR | O_CREAT, _S_IREAD | _S_IWRITE);
             _lseek(handle,0,SEEK_END);
-            _write(handle,szMsg,(unsigned)strlen(szMsg));
+            _write(handle,szMsg,strlen32(szMsg));
             _close(handle);
 #else
             FILE *handle = fopen(_logFile, "a");

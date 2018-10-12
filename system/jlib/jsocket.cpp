@@ -636,7 +636,7 @@ static const char * _inet_ntop (int af, const void *src, char *dst, socklen_t cn
     }
     
     ws32_lib.init();
-    if (WSAAddressToString (&u.sa, srcsize, NULL, dst, &dstlen) != 0) {
+    if (WSAAddressToString (&u.sa, SCAST_IF_x64(DWORD, srcsize), NULL, dst, &dstlen) != 0) {
         errno = WSAGetLastError();
         return NULL;
     }
@@ -1029,7 +1029,7 @@ ISocket* CSocket::accept(bool allowcancel)
 
         if (newsock!=INVALID_SOCKET) {
             if ((sock==INVALID_SOCKET)||(accept_cancel_state==accept_cancel_pending)) {
-                ::close(newsock);
+				closesocket(newsock);
                 newsock=INVALID_SOCKET;
             }
             else {
@@ -1274,7 +1274,7 @@ bool CSocket::connect_timeout( unsigned timeout, bool noexception)
             FD_SET((unsigned)sock, &except);
             tv.tv_sec = remaining / 1000;
             tv.tv_usec = (remaining % 1000)*1000;
-            int rc = ::select( sock + 1, NULL, (fd_set *)&fds, (fd_set *)&except, &tv );
+            int rc = ::select( SCAST_IF_WIN_OS(int,sock + 1), NULL, (fd_set *)&fds, (fd_set *)&except, &tv );
 #else
             struct pollfd fds[1];
             fds[0].fd = sock;
@@ -1407,7 +1407,7 @@ void CSocket::connect_wait(unsigned timems)
                 tv.tv_sec = 0;
                 tv.tv_usec = 0;
     #endif
-                int rc = ::select( sock + 1, NULL, (fd_set *)&fds, (fd_set *)&except, &tv );
+                int rc = ::select( SCAST_IF_WIN_OS(int,sock + 1), NULL, (fd_set *)&fds, (fd_set *)&except, &tv );
 #else
                 struct pollfd fds[1];
                 fds[0].fd = sock;
@@ -1603,14 +1603,14 @@ int CSocket::wait_read(unsigned timeout)
         FD_SET((unsigned)sock, &fds);
         if (timeout==WAIT_FOREVER)
         {
-            ret = ::select( sock + 1, (fd_set *)&fds, NULL, NULL, NULL );
+            ret = ::select(SCAST_IF_WIN_OS(int,sock + 1), (fd_set *)&fds, NULL, NULL, NULL );
         }
         else
         {
             struct timeval tv;
             tv.tv_sec = timeout / 1000;
             tv.tv_usec = (timeout % 1000)*1000;
-            ret = ::select( sock + 1, (fd_set *)&fds, NULL, NULL, &tv );
+            ret = ::select(SCAST_IF_WIN_OS(int, sock + 1), (fd_set *)&fds, NULL, NULL, &tv );
         }
 #else
         struct pollfd fds[1];
@@ -1671,13 +1671,13 @@ int CSocket::wait_write(unsigned timeout)
         XFD_ZERO(&fds);
         FD_SET((unsigned)sock, &fds);
         if (timeout==WAIT_FOREVER) {
-            ret = ::select( sock + 1, NULL, (fd_set *)&fds, NULL, NULL );
+            ret = ::select(SCAST_IF_WIN_OS(int, sock + 1), NULL, (fd_set *)&fds, NULL, NULL );
         }
         else {
             struct timeval tv;
             tv.tv_sec = timeout / 1000;
             tv.tv_usec = (timeout % 1000)*1000;
-            ret = ::select( sock + 1, NULL, (fd_set *)&fds, NULL, &tv );
+            ret = ::select(SCAST_IF_WIN_OS(int, sock + 1), NULL, (fd_set *)&fds, NULL, &tv );
         }
 #else
         struct pollfd fds[1];
@@ -3147,7 +3147,7 @@ static bool decodeNumericIP(const char *text,unsigned *netaddr)
     StringBuffer tmp;
     if ((*text=='[')&&!IP4only) {
         text++;
-        size32_t l = strlen(text);
+        size32_t l = strlen32(text);
         if ((l<=2)||(text[l-1]!=']'))
             return false;
         text = tmp.append(l-2,text);
@@ -3444,7 +3444,7 @@ unsigned IpAddress::ipsetrange( const char *text)  // e.g. 10.173.72.1-65  ('-' 
     bool ok;
     if (r) {
         e = atoi(r+1);
-        StringBuffer tmp(r-text,text);
+        StringBuffer tmp(SCAST_IF_x64(unsigned, r-text),text);
         ok = ipset(tmp.str());
         if (!::isIp4(netaddr))
             IPV6_NOT_IMPLEMENTED();              // TBD IPv6
@@ -3515,7 +3515,7 @@ bool SocketEndpoint::set(const char *name,unsigned short _port)
             const char *s = name+1;
             const char *t = strchr(s,']');
             if (t) {
-                StringBuffer tmp(t-s,s);
+                StringBuffer tmp(SCAST_IF_x64(unsigned, t-s),s);
                 if (t[1]==':') 
                     _port = atoi(t+2);
                 return set(tmp.str(),_port);
@@ -3530,7 +3530,7 @@ bool SocketEndpoint::set(const char *name,unsigned short _port)
             colon = strchr(name, '|'); // strange hole convention
         char ips[260];
         if (colon) {
-            size32_t l = colon-name;
+            size32_t l = SCAST_IF_x64(size32_t, colon-name);
             if (l>=sizeof(ips))
                 l = sizeof(ips)-1;
             memcpy(ips,name,l);
@@ -4000,7 +4000,7 @@ public:
         //FD_SET((unsigned)sock, &except);
         tv.tv_sec = 0;
         tv.tv_usec = 0;
-        int rc = ::select( sock + 1, NULL, (fd_set *)&fds, NULL, &tv );
+        int rc = ::select(SCAST_IF_WIN_OS(int, sock + 1), NULL, (fd_set *)&fds, NULL, &tv );
         if (rc<0) {
             StringBuffer sockstr;
             const char *tracename = sockstr.append((unsigned)sock).str();
@@ -4015,7 +4015,7 @@ public:
         FD_SET((unsigned)sock, &fds);
         tv.tv_sec = 0;
         tv.tv_usec = 0;
-        rc = ::select( sock + 1, (fd_set *)&fds, NULL, NULL, &tv );
+        rc = ::select(SCAST_IF_WIN_OS(int, sock + 1), (fd_set *)&fds, NULL, NULL, &tv );
         if (rc<0) {
             StringBuffer sockstr;
             const char *tracename = sockstr.append((unsigned)sock).str();
@@ -4453,7 +4453,7 @@ public:
                 T_FD_SET *rsp = isrd?cpyfds(rs,rdfds):NULL;
                 T_FD_SET *wsp = iswr?cpyfds(ws,wrfds):NULL;
                 T_FD_SET *esp = isex?cpyfds(es,exfds):NULL;
-                int n = ::select(maxsockid,(fd_set *)rsp,(fd_set *)wsp,(fd_set *)esp,&selecttimeout); // first parameter needed for posix
+                int n = ::select(SCAST_IF_WIN_OS(int, maxsockid),(fd_set *)rsp,(fd_set *)wsp,(fd_set *)esp,&selecttimeout); // first parameter needed for posix
                 if (terminating)
                     break;
                 if (n < 0)
@@ -6564,7 +6564,7 @@ public:
                 FD_SET((unsigned)s, &except);
                 tv.tv_sec = remaining / 1000;
                 tv.tv_usec = (remaining % 1000)*1000;
-                int rc = ::select( s + 1, NULL, (fd_set *)&fds, (fd_set *)&except, &tv );
+                int rc = ::select(SCAST_IF_WIN_OS(int, s + 1), NULL, (fd_set *)&fds, (fd_set *)&except, &tv );
 #else
                 struct pollfd fds[1];
                 fds[0].fd = s;
@@ -6687,13 +6687,13 @@ int wait_multiple(bool isRead,               //IN   true if wait read, false it 
     int res = 0;
 #ifdef _USE_SELECT
     if (timeoutMS == WAIT_FOREVER)
-        res = ::select( maxSocket + 1, isRead ? (fd_set *)&fds : NULL, isRead ? NULL : (fd_set *)&fds, NULL, NULL );
+        res = ::select(SCAST_IF_WIN_OS(int, maxSocket + 1), isRead ? (fd_set *)&fds : NULL, isRead ? NULL : (fd_set *)&fds, NULL, NULL );
     else
     {
         struct timeval tv;
         tv.tv_sec = timeoutMS / 1000;
         tv.tv_usec = (timeoutMS % 1000)*1000;
-        res = ::select( maxSocket + 1,  isRead ? (fd_set *)&fds : NULL, isRead ? NULL : (fd_set *)&fds, NULL, &tv );
+        res = ::select(SCAST_IF_WIN_OS(int, maxSocket + 1),  isRead ? (fd_set *)&fds : NULL, isRead ? NULL : (fd_set *)&fds, NULL, &tv );
     }
 #else
     res = poll(fds, numSocks, timeoutMS);
@@ -6716,7 +6716,7 @@ int wait_multiple(bool isRead,               //IN   true if wait read, false it 
 #ifdef _DEBUG
                 dbgSB.appendf(" %d",s);
 #endif
-                readySocks.append(s);
+                readySocks.append(SCAST_IF_WIN_OS(unsigned, s));
                 if ((int) readySocks.length() == res)
                     break;
             }

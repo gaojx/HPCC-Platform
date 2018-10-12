@@ -1647,13 +1647,13 @@ void RtlVarStringTypeInfo::readAhead(IRowPrefetcherSource & in) const
 void RtlVarStringTypeInfo::getString(size32_t & resultLen, char * & result, const void * ptr) const
 {
     const char * str = (const char *)ptr;
-    return rtlStrToStrX(resultLen, result, strlen(str), str);
+    rtlStrToStrX(resultLen, result, strlen32(str), str);
 }
 
 void RtlVarStringTypeInfo::getUtf8(size32_t & resultLen, char * & result, const void * ptr) const
 {
     const char * str = (const char *)ptr;
-    return rtlStrToUtf8X(resultLen, result, strlen(str), str);
+    rtlStrToUtf8X(resultLen, result, strlen32(str), str);
 }
 
 __int64 RtlVarStringTypeInfo::getInt(const void * ptr) const
@@ -1668,7 +1668,7 @@ int RtlVarStringTypeInfo::compare(const byte * left, const byte * right) const
     {
         const char * leftValue = (const char *)left;
         const char * rightValue = (const char *)right;
-        return rtlCompareEStrEStr(strlen(leftValue), leftValue, strlen(rightValue), rightValue);
+        return rtlCompareEStrEStr(strlen32(leftValue), leftValue, strlen32(rightValue), rightValue);
     }
     return rtlCompareVStrVStr((const char *)left, (const char *)right);
 }

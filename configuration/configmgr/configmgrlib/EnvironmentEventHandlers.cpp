@@ -19,6 +19,7 @@ limitations under the License.
 #include "EnvironmentNode.hpp"
 #include "EnvironmentValue.hpp"
 
+#pragma warning (disable:4503)
 
 void MatchEnvironmentEventHandler::processEvent(const std::string &eventType, std::shared_ptr<EnvironmentNode> pEventNode)
 {

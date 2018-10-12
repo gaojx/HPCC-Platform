@@ -312,7 +312,7 @@ class CFitArray
         if (freeChainHead)
         {
             unsigned nF = freeChainHead;
-            freeChainHead = (CRemoteTreeBase **)ptrs[nF]-ptrs;
+            freeChainHead = SCAST_IF_x64(unsigned,(CRemoteTreeBase **)ptrs[nF]-ptrs);
             return nF;
         }
         if (++nextId >= size)
@@ -738,7 +738,7 @@ public:
                 const char *endQ = queryNextUnquoted(startQ+1, ']');
                 if (!endQ)
                     throw MakeSDSException(SDSExcpt_SubscriptionParseError, "Missing closing brace: %s", xpath.get());
-                StringAttr qualifier(startQ+1, endQ-startQ-1);
+                StringAttr qualifier(startQ+1, SCAST_IF_x64(unsigned,endQ-startQ-1));
                 qualifiers->add(qualifier);
                 path = endQ+1;
                 if ('[' != *path)
@@ -986,7 +986,7 @@ void writeDelta(StringBuffer &xml, IFile &iFile, const char *msg="", unsigned re
             memcpy(headerPtr + deltaHeaderCrcOff, strNum, 10);
             sprintf(strNum, "%016" I64F "X", fLen);
             memcpy(headerPtr + deltaHeaderSizeOff, strNum, 16);
-            iFileIO->write(0, strlen(deltaHeader), headerPtr);
+            iFileIO->write(0, strlen32(deltaHeader), headerPtr);
         }
         catch (IException *e)
         {
@@ -1748,7 +1748,7 @@ void buildNotifyData(MemoryBuffer &notifyData, PDState state, CPTStack *stack, M
             {
                 PTree &child = stack->item(s);
                 const char *str = child.queryName();
-                notifyData.append(strlen(str), str);
+                notifyData.append(strlen32(str), str);
                 if (child.queryParent())
                 {
                     char temp[12];
@@ -5288,7 +5288,7 @@ public:
                     {
                         const char *num = fname.str()+7;
                         const char *dot = (const char *)strchr(num, '.');
-                        unsigned fileEdition = atoi_l(num, dot-num);
+                        unsigned fileEdition = atoi_l(num, SCAST_IF_x64(size32_t,dot-num));
                         int d = (int)fileEdition-(int)edition;
                         if (edition != fileEdition && (d>=1 || d<(-(int)keepStores)))
                         {
@@ -5343,7 +5343,7 @@ public:
         unsigned embeddedCrc = 0;
         offset_t pos = 0;
         bool hasCrcHeader = false; // check really only needed for deltas proceeding CRC header
-        if (strlen(deltaHeader) == iFileIO->read(0, strlen(deltaHeader), ptr))
+        if (strlen32(deltaHeader) == iFileIO->read(0, strlen32(deltaHeader), ptr))
         {
             if (0 == memicmp(deltaHeader, ptr, 5))
             {
@@ -5352,7 +5352,7 @@ public:
                 embeddedCrc = (unsigned)atoi64_l(ptr+deltaHeaderCrcOff, 10);
                 if (0 == memicmp(deltaHeader+deltaHeaderSizeStart, ptr+deltaHeaderSizeStart, 6)) // has <SIZE> too
                 {
-                    pos = strlen(deltaHeader);
+                    pos = strlen32(deltaHeader);
                     offset_t lastGood;
                     if (sscanf(ptr+deltaHeaderSizeOff, "%" I64F "X", &lastGood))
                     {
@@ -6094,7 +6094,7 @@ void CCovenSDSManager::loadStore(const char *storeName, const bool *abort)
 // build list of primary, backup and legacy type external files
         CIArrayOf<CLegacyFmtItem> legacyFmts;
         UInt64Array primaryExts, backupExts;
-        unsigned l = strlen(EXTERNAL_NAME_PREFIX);
+        unsigned l = strlen32(EXTERNAL_NAME_PREFIX);
         bool primary = true;
         Owned<IDirectoryIterator> di = createDirectoryIterator(dataPath);
         for (;;)
@@ -6477,7 +6477,7 @@ void CCovenSDSManager::saveDelta(const char *path, IPropertyTree &changeTree)
     if (externalEnvironment)
     {
         // don't save any changed to /Environment if external
-        if (0 == strncmp("/Environment", path, strlen("/Environment")))
+        if (0 == strncmp("/Environment", path, strlen32("/Environment")))
         {
             WARNLOG("Attempt to change read-only Dali environment, path = %s", path);
             return;
@@ -7186,7 +7186,7 @@ CServerConnection *CCovenSDSManager::createConnectionInstance(CRemoteTreeBase *r
     StringBuffer tXpath;
     if (!RTM_MODE(mode, RTM_CREATE_UNIQUE))
     {
-        unsigned l = strlen(_xpath);
+        unsigned l = strlen32(_xpath);
         if (l && '/' == _xpath[l-1])
         {
             tXpath.append(l-1, _xpath);
@@ -7485,7 +7485,7 @@ void CCovenSDSManager::lock(CServerRemoteTree &tree, const char *xpath, Connecti
             sxpath.append('/');
         xpath = sxpath.str();
     }
-    else if ('/' != xpath[strlen(xpath)-1])
+    else if ('/' != xpath[strlen32(xpath)-1])
     {
         sxpath.append(xpath);
         sxpath.append('/');

@@ -431,7 +431,7 @@ void md5_string(const char* inpstring, int inplen, StringBuffer& outstring)
 
 void md5_string2(const char* inpstring, StringBuffer& outstring)
 {
-    md5_string(inpstring,(size32_t)strlen(inpstring),outstring);
+    md5_string(inpstring,strlen32(inpstring),outstring);
 }
 
 void md5_string(StringBuffer& inpstring, StringBuffer& outstring)

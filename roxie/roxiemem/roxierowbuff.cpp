@@ -32,7 +32,7 @@ RoxieOutputRowArray::RoxieOutputRowArray(IRowManager * _rowManager, rowidx_t ini
     if (initialSize)
     {
         rows = static_cast<const void * *>(rowManager->allocate(initialSize * sizeof(void*), allocatorId));
-        maxRows = RoxieRowCapacity(rows) / sizeof(void *);
+        maxRows = SCAST_IF_x64(size32_t,RoxieRowCapacity(rows)) / sizeof32(void *);
     }
     else
     {
@@ -191,7 +191,7 @@ bool DynamicRoxieOutputRowArray::ensure(rowidx_t requiredRows)
         commitRows -= firstRow;
         firstRow = 0;
         rows = newRows;
-        maxRows = RoxieRowCapacity(newRows) / sizeof(void *);
+        maxRows = SCAST_IF_x64(size32_t, RoxieRowCapacity(newRows)) / sizeof32(void *);
     }
 
     ReleaseRoxieRow(oldRows);

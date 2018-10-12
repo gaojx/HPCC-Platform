@@ -1346,7 +1346,7 @@ IRowStream *createConcatRowStream(unsigned numstreams,IRowStream** streams,bool 
 
 
 #ifdef  __x86_64__
-void writeStringToStream(IIOStream &out, const char *s) { out.write((size32_t)strlen(s), s); }
+void writeStringToStream(IIOStream &out, const char *s) { out.write(strlen32(s), s); }
 void writeCharsNToStream(IIOStream &out, char c, unsigned cnt) { while(cnt--) out.write(1, &c); }
 void writeCharToStream(IIOStream &out, char c) { out.write(1, &c); }
 #endif

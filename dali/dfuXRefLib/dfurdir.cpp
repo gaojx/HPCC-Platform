@@ -191,7 +191,7 @@ IPropertyTree *getDirectory(const char * directory, INode * node, unsigned short
             {
                 const char * sep = strchr(cur, ';');
                 if (sep)
-                    nextDir.set(cur, sep-cur);
+                    nextDir.set(cur, SCAST_IF_x64(unsigned, sep-cur));
                 else
                     nextDir.set(cur);
                 builder.rootDirectory(nextDir, node, dirTree, port);

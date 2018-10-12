@@ -18,8 +18,6 @@
 // treeviewDlg.cpp : implementation file
 //
 
-
-
 #include "stdafx.h"
 
 #include "treeview.h"

@@ -115,7 +115,7 @@ static int createTempFile(RFS_ServerBase &base,char *&name)
     name = _tempnam(tempdir,"rfspgtmp");
     int ret = _open(name, _O_RDWR | _O_CREAT | _O_BINARY, _S_IREAD|_S_IWRITE);
 #else
-    size_t ds = tempdir?strlen(tempdir):0;
+    size_t ds = tempdir?strlen32(tempdir):0;
     name = (char *)malloc(ds+32);
     if (ds) {
         memcpy(name,tempdir,ds);
@@ -386,7 +386,7 @@ public:
             for (unsigned f=0;f<numfields;f++) {
                 char * val = PQgetvalue(res, currow, f);
                 if (val)
-                    csvwriter.putField(strlen(val),val);
+                    csvwriter.putField(strlen32(val),val);
             }
             currow++;
             csvwriter.putRow();
@@ -655,7 +655,7 @@ bool checkparam(const char *param,const char *name,char *out,size_t size)
     if (strncmp(param,name,strlen(name))==0) {
         const char *v = param+strlen(name);
         if (*v=='=') {
-            if (strlen(v+1)>size-1) {
+            if (strlen32(v+1)>size-1) {
                 fprintf(stderr,"parameter %s to large (> %d chars)",param,size-1);
                 exit(1);
             }

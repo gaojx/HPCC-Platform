@@ -122,7 +122,7 @@ public:
             xmlXPathObjectPtr evaluatedXpathObj = evaluate(xpath);
             if (evaluatedXpathObj && evaluatedXpathObj->type == XPATH_BOOLEAN)
             {
-                bresult = evaluatedXpathObj->boolval;
+                bresult = evaluatedXpathObj->boolval != 0;
             }
             else
                 throw MakeStringException(-1,"XpathProcessor:evaluateAsBoolean: Error: Could not evaluate XPATH '%s' as boolean", m_xpath.str());
@@ -156,7 +156,7 @@ public:
         else
             throw MakeStringException(-1,"XpathProcessor:evaluateAsString: Error: empty xpath provided");
 
-        return evaluated.str();
+        return evaluated.str()!=nullptr;
     }
 
     virtual bool evaluateAsBoolean(ICompiledXpath * compiledXpath) override
@@ -167,7 +167,7 @@ public:
 
         if (evaluatedXpathObj && evaluatedXpathObj->type == XPATH_BOOLEAN)
         {
-            bresult = evaluatedXpathObj->boolval;
+            bresult = evaluatedXpathObj->boolval != 0;
         }
         else
             throw MakeStringException(-1,"XpathProcessor:evaluateAsBoolean: Error: Could not evaluate XPATH '%s' as boolean", m_xpath.str());

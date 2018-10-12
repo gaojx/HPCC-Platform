@@ -124,7 +124,7 @@ public:
 
     virtual void writeByte(byte b);
     virtual void writeBytes(const void *, int);
-    virtual void writeString(const char *str) { writeBytes(str, strlen(str)); }
+    virtual void writeString(const char *str) { writeBytes(str, strlen_int(str)); }
 };
 
 class jlib_decl CFileOutputStream : public IByteOutputStream, public CInterface
@@ -139,7 +139,7 @@ public:
 
     virtual void writeByte(byte b);
     virtual void writeBytes(const void *, int);
-    virtual void writeString(const char *str) { writeBytes(str, strlen(str)); }
+    virtual void writeString(const char *str) { writeBytes(str, strlen_int(str)); }
 };
 
 class jlib_decl CStringBufferOutputStream : public IByteOutputStream, public CInterface
@@ -153,7 +153,7 @@ public:
 
     virtual void writeByte(byte b);
     virtual void writeBytes(const void *, int);
-    virtual void writeString(const char *str) { writeBytes(str, strlen(str)); }
+    virtual void writeString(const char *str) { writeBytes(str, strlen_int(str)); }
 };
 
 #endif

@@ -260,7 +260,7 @@ public:
                     if (!invoke_program(cmd.str(), runcode, false, NULL, &h)) 
                         ERRLOG("Could not run saserver in coalesce mode");
                     else {
-                        PROGLOG("COALESCE: started pid = %d",(int)h);
+                        PROGLOG("COALESCE: started pid = %p",h);
                         while (!wait_program(h,runcode,false)) {
                             stopsem.wait(1000*60);
                             if (stopped) {

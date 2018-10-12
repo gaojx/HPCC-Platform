@@ -342,7 +342,7 @@ StringBuffer & StringBuffer::append(const String & value)
     size_t SourceLen = value.length();
     
     ensureCapacity(SourceLen);
-    value.getChars(0, SourceLen, buffer, curLen);
+    value.getChars(0, (int)SourceLen, buffer, (int)curLen);
     curLen += SourceLen;
     return *this;
 }
@@ -430,7 +430,7 @@ StringBuffer & StringBuffer::limited_valist_appendf(size_t szLimit, const char *
             {
                 if ((size_t)len>szLimit)
                 {
-                    len = size;
+                    len = (int)size;
                     if (len>3) memcpy(buffer+len-3, "...", 3);
                 }
             }
@@ -444,7 +444,7 @@ StringBuffer & StringBuffer::limited_valist_appendf(size_t szLimit, const char *
     }
     else if (size == szLimit)
     {
-        len = size;
+        len = (int)size;
         if (len>3) memcpy(buffer+len-3, "...", 3);
     }
     else
@@ -474,7 +474,7 @@ StringBuffer & StringBuffer::limited_valist_appendf(size_t szLimit, const char *
                 break;
             if (size == szLimit)
             {
-                len = size;
+                len = (int)size;
                 if (len>3) memcpy(buffer+len-3, "...", 3);
                 break;
             }
@@ -625,7 +625,7 @@ void StringBuffer::getChars(size_t srcBegin, size_t srcEnd, char * target) const
 {
     if (srcEnd > curLen)
         srcEnd = curLen;
-    const int len = srcEnd - srcBegin;
+    const int len = SCAST_IF_x64(int,srcEnd - srcBegin);
     if (target && buffer && len > 0)
         memcpy(target, buffer + srcBegin, len);
 }
@@ -705,7 +705,7 @@ StringBuffer & StringBuffer::insert(size_t offset, const String & value)
     size_t len = value.length();
     
     _insert(offset, len);
-    value.getChars(0, len, buffer, offset);
+    value.getChars(0, (int)len, buffer, (int)offset);
     return *this;
 }
 
@@ -786,7 +786,7 @@ StringBuffer & StringBuffer::remove(size_t start, size_t len)
 {
     if (start > curLen) start = curLen;
     if (start + len > curLen) len = curLen - start;
-    unsigned start2 = start + len;
+    unsigned start2 = SCAST_IF_x64(unsigned,start + len);
     memmove(buffer + start, buffer + start2, curLen - start2);
     setLength(curLen - len);
     return *this;
@@ -819,7 +819,7 @@ MemoryBuffer & StringBuffer::deserialize(MemoryBuffer & in)
 
 MemoryBuffer & StringBuffer::serialize(MemoryBuffer & out) const
 {
-    return out.append((unsigned)curLen).append(curLen, buffer);
+    return out.append((unsigned)curLen).append((unsigned)curLen, buffer);
 }
 
 StringBuffer &StringBuffer::loadFile(const char *filename, bool binaryMode)
@@ -890,8 +890,8 @@ StringBuffer & StringBuffer::toLowerCase()
 
 StringBuffer & StringBuffer::toUpperCase()
 {
-    size32_t l = curLen;
-    for (size32_t i = 0; i < l; i++)
+    size_t l = curLen;
+    for (size_t i = 0; i < l; i++)
     {
         if (islower(buffer[i]))
             buffer[i] = toupper(buffer[i]);
@@ -2246,7 +2246,7 @@ StringBuffer &encodeJSON(StringBuffer &s, const char *value)
 {
     if (!value)
         return s;
-    return encodeJSON(s, strlen(value), value);
+    return encodeJSON(s, strlen32(value), value);
 }
 
 bool checkUnicodeLiteral(char const * str, unsigned length, unsigned & ep, StringBuffer & msg)

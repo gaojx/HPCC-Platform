@@ -29,7 +29,7 @@ std::string SchemaTypeStringLimits::getLimitString() const
 bool SchemaTypeStringLimits::doValueTest(const std::string &testValue) const
 {
     bool isValid;
-    int len = testValue.length();
+    int len = (int)testValue.length();
     isValid = len >= m_minLength && len <= m_maxLength;
 
     // test patterns

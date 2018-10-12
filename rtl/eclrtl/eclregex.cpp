@@ -104,7 +104,7 @@ public:
     {
         if (matched && (n < subs.size()))
         {
-            outlen = subs[n].second - subs[n].first;
+            outlen = SCAST_IF_x64(unsigned, subs[n].second - subs[n].first);
             out = (char *)rtlMalloc(outlen);
             memcpy(out, subs[n].first, outlen);
         }
@@ -119,7 +119,7 @@ public:
     {
         if (matched && (n < subs.size()))
         {
-            unsigned sublen = subs[n].second - subs[n].first;
+            unsigned sublen = SCAST_IF_x64(unsigned, subs[n].second - subs[n].first);
             if (sublen >= outlen)
                 sublen = outlen - 1;
             memcpy(out, subs[n].first, sublen);
@@ -198,7 +198,7 @@ public:
 #endif
             rtlFail(0, msg.c_str());
         }
-        outlen = tgt.length();
+        outlen = SCAST_IF_x64(size32_t, tgt.length());
         out = (char *)rtlMalloc(outlen);
         memcpy(out, tgt.data(), outlen);
     }
@@ -222,7 +222,7 @@ public:
             const match_results<const char *> &match = *cur;
             if (match[0].first==search_end) break;
 
-            const size32_t lenBytes = match[0].second - match[0].first;
+            const size32_t lenBytes = SCAST_IF_x64(size32_t, match[0].second - match[0].first);
             out.ensureAvailable(outBytes+lenBytes+sizeof(size32_t));
             byte *outData = out.getbytes()+outBytes;
 

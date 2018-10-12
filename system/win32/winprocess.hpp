@@ -25,6 +25,8 @@
 #include <list>
 #define MAX_COMMAND 1024
 
+#define SCAST_DWORD static_cast<DWORD>
+
 // another kludge to build Win2K programs with NT 4 build environment
 extern "C" WINBASEAPI BOOL WINAPI ProcessIdToSessionId(DWORD dwProcessId,DWORD *pSessionId);
 
@@ -54,7 +56,7 @@ public:
         TCHAR temp[MAX_PATH];
         if(::GetModuleFileNameEx(*this,NULL,temp,arraysize(temp)))
         {
-            if(!::GetLongPathName(temp,buf,size))
+            if(!::GetLongPathName(temp,buf,SCAST_DWORD(size)))
             {
                 _tcsncpy(buf,temp,size);
             }
@@ -174,7 +176,7 @@ public:
     size_t Write(const char *input, size_t inputLen) 
     {
         DWORD wrote;
-        if(!::WriteFile(write, input, inputLen, &wrote, NULL))
+        if(!::WriteFile(write, input, SCAST_DWORD(inputLen), &wrote, NULL))
         {
         }
         return wrote;
@@ -193,7 +195,7 @@ public:
     size_t Read(char *output, size_t outputLen)
     {
         DWORD bread=0;
-        if(::ReadFile(read, output, outputLen, &bread, NULL))
+        if(::ReadFile(read, output, SCAST_DWORD(outputLen), &bread, NULL))
         {
             return bread;
         }

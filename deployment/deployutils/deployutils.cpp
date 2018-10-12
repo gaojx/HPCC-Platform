@@ -459,7 +459,7 @@ void GetDisplayName(IPropertyTree* pNode, StringBuffer& sb, bool bAppendProcessN
   {
     if (szName && *szName)
     {
-      cnt -= strlen(szName);
+      cnt -= strlen32(szName);
       strncat(szBuf, " - ", cnt);
       strncat(szBuf, szName, cnt - 3); 
     }
@@ -1031,7 +1031,7 @@ public:
               {
                 nCtrlType = 4;//LVC_COMBO;
                 const char* prefix = "/Environment/";
-                const int len = strlen(prefix);
+                const int len = strlen32(prefix);
 
                 if (!strncmp(xpath1, prefix, len)) //xpath is absolute
                   xpath2 = xpath1 + len; //IPropertyTree root does not take absolute paths
@@ -2646,7 +2646,7 @@ bool checkComponentReferences(const IPropertyTree* pEnv,
   if (pSlash)
   {
     String str(xpath);
-    String* pStr = str.substring(0, strcspn(xpath, "/"));
+    String* pStr = str.substring(0, SCAST_IF_x64(unsigned, strcspn(xpath, "/")));
     xpath1.append(pStr->str());
     delete pStr;
     xpath2 = pSlash+1;
@@ -2693,7 +2693,7 @@ bool checkComponentReferences(const IPropertyTree* pEnv,
         bool bMatch;                
         if (bEspProcess)
         {
-          const unsigned int len = strlen(szName);
+          const unsigned int len = strlen32(szName);
           bMatch = !strncmp(szValue, szName, len) && szValue[len] == '/';
         }
         else
@@ -3868,7 +3868,7 @@ void getTempPath(char* tempPath, unsigned int bufsize, const char* subdir/*=NULL
   ::GetLongPathName(tempPath, tempPath, bufsize);
   if (subdir && *subdir)
   {
-    const int len = strlen(tempPath);
+    const unsigned len = strlen32(tempPath);
     char* p = tempPath + len;
     strcpy(p, subdir);
     p += strlen(subdir);

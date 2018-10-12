@@ -14,7 +14,8 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 ############################################################################## */
-
+#include <platform.h>
+#include "jutil.hpp"
 
 #include "EnvSupportLib.hpp"
 #include "Exceptions.hpp"
@@ -29,21 +30,21 @@ EnvSupportLib::EnvSupportLib(const std::string &libName, EnvironmentMgr *pEnvMgr
         throw (ParseException(msg));
     }
 
-    m_libHandle = dlopen(m_libName.c_str(), RTLD_LAZY);
+	m_libHandle = LoadSharedObject(m_libName.c_str(),true,false); // , RTLD_LAZY);
     if (m_libHandle == nullptr)
     {
-        std::string msg = "Error opening support library " + libName + ", error = " + dlerror();
+        std::string msg = "Error opening support library " + libName + ", error = " + GetErrorString();
         throw (ParseException(msg));
     }
 
-    getHPCCSupportLib_t getInstanceProc = (getHPCCSupportLib_t)dlsym(m_libHandle, "getInstance");
+    getHPCCSupportLib_t getInstanceProc = (getHPCCSupportLib_t)GetSharedProcedure(m_libHandle, "getInstance");
     if (getInstanceProc != nullptr)
     {
         m_pSupportLib = getInstanceProc(pEnvMgr);;
     }
     else
     {
-        std::string msg = "Error getting getInstance function " + libName + ", error = " + dlerror();
+        std::string msg = "Error getting getInstance function " + libName + ", error = " + GetErrorString();
         throw (ParseException(msg));
     }
 }
@@ -53,7 +54,7 @@ EnvSupportLib::~EnvSupportLib()
 {
     if (m_libHandle != nullptr)
     {
-        dlclose(m_libHandle);
+        FreeSharedObject(m_libHandle);
         m_libHandle = nullptr;
     }
 }

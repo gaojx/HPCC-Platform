@@ -704,7 +704,7 @@ static void addTopTen(StringBuffer &out,IGroup *grp,unsigned *srt,const char *ti
     unsigned isbottom;
     for (isbottom=0;isbottom<2;isbottom++) {
         out.append(isbottom?titlebottom:titletop).append(NL);
-        i = strlen(isbottom?titlebottom:titletop);
+        i = strlen32(isbottom?titlebottom:titletop);
         while (i--)
             out.append('-');
         out.append(NL);

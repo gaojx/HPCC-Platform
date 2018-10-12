@@ -68,7 +68,7 @@ enum MCovenRequestKind {
 void CDaliVersion::set(const char *s)
 {
     const char *dot = strchr(s, '.');
-    StringAttr _major(s, dot-s);
+    StringAttr _major(s, SCAST_IF_x64(unsigned,dot-s));
     major = atoi(_major);
     minor = atoi(dot+1);
 }

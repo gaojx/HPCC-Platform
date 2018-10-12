@@ -739,7 +739,7 @@ unsigned crc_file(const char *name)
     {
         while(1)
         {
-            unsigned si = fread(buffer, 1, sizeof(buffer), f);
+            unsigned si = SCAST_IF_x64(unsigned,fread(buffer, 1, sizeof(buffer), f));
             if (si)
             {
                 crc = crc32(buffer, si, crc);

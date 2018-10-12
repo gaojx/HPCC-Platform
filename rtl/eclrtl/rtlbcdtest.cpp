@@ -168,7 +168,7 @@ protected:
     void checkBuffer(const void * buffer, const char * expected)
     {
         char temp[40];
-        expandHex(buffer, strlen(expected)/2, temp);
+        expandHex(buffer, strlen32(expected)/2, temp);
         cppunit_assert(strcmp(expected, temp) == 0, "ERROR: checkBuffer: expected '%s', got '%s'", expected, temp);
     }
 

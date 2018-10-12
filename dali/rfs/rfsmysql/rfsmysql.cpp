@@ -102,7 +102,7 @@ static int createTempFile(RFS_ServerBase &base,char *&name)
     name = _tempnam(tempdir,"rfsmysqltmp");
     int ret = _open(name, _O_RDWR | _O_CREAT | _O_BINARY, _S_IREAD|_S_IWRITE);
 #else
-    size_t ds = tempdir?strlen(tempdir):0;
+    size_t ds = tempdir?strlen32(tempdir):0;
     name = (char *)malloc(ds+32);
     if (ds) {
         memcpy(name,tempdir,ds);
@@ -188,7 +188,7 @@ class CMySqlRFSconn: public RFS_ConnectionBase
             err = strerror(localerr);
         if (!err)
             err = "Error";
-        size_t l = strlen(err);
+        size_t l = strlen32(err);
         if (l+1>error_msg_len)
             l = error_msg_len-1;
         memcpy(error_msg,err,l);
@@ -327,7 +327,7 @@ class CMySqlRFSconn: public RFS_ConnectionBase
             return numfields!=0;
         if (base.debugLevel())
             base.log("Query: '%s'",query);
-        if (mysql_real_query(&mysql, query, strlen(query)))
+        if (mysql_real_query(&mysql, query, strlen32(query)))
             mySqlError();
         return storeresults();
     }
@@ -352,7 +352,7 @@ class CMySqlRFSconn: public RFS_ConnectionBase
         lastpos = 0;
         localerr = 0;
         mysql_set_local_infile_handler(&mysql, local_infile_init, local_infile_read, local_infile_end, local_infile_error, this);
-        if (mysql_real_query(&mysql, query, strlen(query))==0) {
+        if (mysql_real_query(&mysql, query, strlen32(query))==0) {
             // I *think* this should execute all the multi statements
         }
         else {
@@ -772,10 +772,10 @@ bool checkparam(const char *param,const char *name,char *out,size_t size)
     if ((param[0]!='-')||(param[0]!='-'))
         return false;
     param+=2;
-    if (strncmp(param,name,strlen(name))==0) {
+    if (strncmp(param,name,strlen32(name))==0) {
         const char *v = param+strlen(name);
         if (*v=='=') {
-            if (strlen(v+1)>size-1) {
+            if (strlen32(v+1)>size-1) {
                 fprintf(stderr,"parameter %s to large (> %d chars)",param,size-1);
                 exit(1);
             }

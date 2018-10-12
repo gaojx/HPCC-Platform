@@ -185,7 +185,7 @@ public:
 
     virtual unsigned getHashFromFindParam(const void *fp) const
     {
-        return hashc((const unsigned char *)fp, strlen((const char *)fp), 0);
+        return hashc((const unsigned char *)fp, strlen32((const char *)fp), 0);
     }
 
     virtual const void *getFindParam(const void *e) const
@@ -1536,7 +1536,7 @@ void loadFromDFS(CXRefManagerBase &manager,IGroup *grp,unsigned numdirs,const ch
                         unsigned k;
                         for (k=0;k<numdirs;k++)
                         {
-                            if (memicmp(localname.str(),dirbaselist[k],strlen(dirbaselist[k]))==0) {
+                            if (memicmp(localname.str(),dirbaselist[k],strlen32(dirbaselist[k]))==0) {
                                 dirmatch = true;
                                 break;
                             }
@@ -1629,7 +1629,7 @@ public:
     {
         unsigned i;
         for (i=0;i<numdirs;i++) {
-            size32_t l = strlen(dirbaselist[i]);
+            size_t l = strlen(dirbaselist[i]);
             if ((memicmp(dirbaselist[i],name,l)==0)&&isPathSepChar(name[l])) {
                 basedir.append(dirbaselist[i]).toLowerCase();
                 return;
@@ -1736,7 +1736,7 @@ public:
             do {
                 IPropertyTree &file = files->query();
                 const char *fname=file.queryProp("@name");
-                size32_t l = strlen(fname);
+                size_t l = strlen(fname);
                 if ((l>4)&&(stricmp(fname+l-4,".crc")==0))
                     continue;
                 if (path.length()&&!isPathSepChar(path.charAt(path.length()-1)))
@@ -1946,7 +1946,7 @@ class CXRefManager: public CXRefManagerBase
                     do {
                         IPropertyTree &file = files->query();
                         const char *fname=file.queryProp("@name");
-                        size32_t l = strlen(fname);
+                        size_t l = strlen(fname);
     //                  if ((l>4)&&(stricmp(fname+l-4,".crc")==0))
     //                      continue;
                         if (path.length()&&(path.charAt(path.length()-1)!=pathsepchar))

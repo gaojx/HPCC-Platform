@@ -511,7 +511,7 @@ MemoryBuffer & MemoryBuffer::append(bool value)
 MemoryBuffer & MemoryBuffer::append(const char * value)
 {
     if (value)
-        return append((size32_t)strlen(value)+1,value);
+        return append(strlen32(value)+1,value);
     else
         return append((char)0);
 }
@@ -685,7 +685,7 @@ MemoryBuffer & MemoryBuffer::read(bool & value)
 MemoryBuffer & MemoryBuffer::read(StringAttr & value)
 {
     char * src = buffer + readPos;
-    size32_t len = (size32_t)strlen(src);
+    size32_t len = strlen32(src);
     CHECKREADPOS(len+1);
     value.set(src, len);
     readPos += (len+1);
@@ -705,7 +705,7 @@ MemoryBuffer & MemoryBuffer::read(StringBuffer & value)
 MemoryBuffer & MemoryBuffer::read(const char * &value)
 {
     value = buffer+readPos;
-    size32_t len = (size32_t)strlen(value);
+    size32_t len = strlen32(value);
     CHECKREADPOS(len+1);
     readPos += (len+1);
     return *this;
@@ -950,7 +950,7 @@ MemoryBuffer & serialize(MemoryBuffer & buffer, const char * value)
 {
     if (value)
     {
-        unsigned length = (size32_t)strlen(value);
+        unsigned length = strlen32(value);
         buffer.append(length).append(length, value);
     }
     else
@@ -1151,7 +1151,7 @@ void CLargeMemoryAllocator::reset()
 void CLargeMemoryAllocator::reduceSize(memsize_t amount)
 {
     if (amount<=chunk.size) {
-        chunk.size-=amount;
+        chunk.size -= SCAST_IF_x64(size32_t,amount);
         return;
     }
     memsize_t reduced = 0;
@@ -1165,7 +1165,7 @@ void CLargeMemoryAllocator::reduceSize(memsize_t amount)
         atot -= chunk.size;
         delete p;
     } while (amount>chunk.size);
-    chunk.size-=amount;
+    chunk.size -= SCAST_IF_x64(size32_t,amount);
     decLargeMemTotal(reduced);
 }
 

@@ -4095,8 +4095,8 @@ public:
     // original base path to construct new paths for the rename
     bool getBase(const char *oldPath, const char *thisPath, StringBuffer &baseDir)
     {
-        const char *oldEnd = oldPath+strlen(oldPath)-1;
-        const char *thisEnd = thisPath+strlen(thisPath)-1;
+        const char *oldEnd = oldPath+strlen32(oldPath)-1;
+        const char *thisEnd = thisPath+strlen32(thisPath)-1;
         if (isPathSepChar(*oldEnd))
             oldEnd--;
         if (isPathSepChar(*thisEnd))
@@ -4151,7 +4151,7 @@ public:
             return false;
         if (isPathSepChar(newPath.charAt(newPath.length()-1)))
             newPath.setLength(newPath.length()-1);
-        newPath.remove(0, strlen(myBase));
+        newPath.remove(0, strlen32(myBase));
         newdir.append(baseDir).append(newPath);
         StringBuffer fullname;
         CIArrayOf<CIStringArray> newNames;
@@ -4161,7 +4161,7 @@ public:
             CDistributedFilePart &part = parts.item(i);
             for (unsigned copy=0; copy<part.numCopies(); copy++) {
                 makePhysicalPartName(newname, i+1, width, newPath.clear(), false, os, myBase);
-                newPath.remove(0, strlen(myBase));
+                newPath.remove(0, strlen32(myBase));
 
                 StringBuffer copyDir(baseDir);
                 adjustClusterDir(i, copy, copyDir);
@@ -10807,7 +10807,7 @@ bool removePhysicalFiles(IGroup *grp,const char *_filemask,unsigned short port,C
     if (!isAbsolutePath(_filemask))
         throw MakeStringException(-1,"removePhysicalFiles: Filename %s must be complete path",_filemask);
 
-    size32_t l = strlen(_filemask);
+    size32_t l = strlen32(_filemask);
     while (l&&isdigit(_filemask[l-1]))
         l--;
     unsigned width=0;
@@ -11277,7 +11277,7 @@ bool decodeChildGroupName(const char *gname,StringBuffer &parentname, StringBuff
 {
     if (!gname||!*gname)
         return false;
-    size32_t l = strlen(gname);
+    size32_t l = strlen32(gname);
     if (gname[l-1]!=']')
         return false;
     const char *ss = strchr(gname,'[');
@@ -12423,7 +12423,7 @@ IPropertyTreeIterator *deserializeFileAttrIterator(MemoryBuffer& mb, unsigned nu
                 if ((subfmt==DFUQRFnodegroup) && fv && *fv)
                     nodeGroupFilter.appendListUniq(fv, ",");
                 //Add more if needed
-                fv = fv + strlen(fv)+1;
+                fv = fv + strlen32(fv)+1;
             }
         }
 

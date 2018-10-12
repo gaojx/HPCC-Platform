@@ -117,7 +117,7 @@ public:
                 // remove .thor
                 if (!qname)
                     return NULL;
-                size32_t l = strlen(qname);
+                size32_t l = strlen32(qname);
                 if (l<6)
                     return NULL;
                 StringBuffer test(l-5,qname);

@@ -400,7 +400,7 @@ bool processDirCommand(ISocket * masterSocket, MemoryBuffer & cmd, MemoryBuffer 
     {
         const char * sep = strchr(cur, ';');
         if (sep)
-            nextDir.set(cur, sep-cur);
+            nextDir.set(cur, SCAST_IF_x64(unsigned, sep-cur));
         else
             nextDir.set(cur);
         LOG(MCdebugProgress, unknownJob, "Process Directory Command: %s", nextDir.get());

@@ -296,7 +296,7 @@ int RSAZCryptor::addContentToZIP(unsigned contentLength, void *content, char* fi
 
     if (fileName && *fileName)
     {
-        int len = strlen(fileName);
+        int len = strlen32(fileName);
         pFile->file_name = (char*)malloc(len+1);
         strcpy(pFile->file_name, fileName);
     }
@@ -915,7 +915,7 @@ IZBuffer* RSAZCryptor::decrypt(unsigned char* keybuf, unsigned char* inbuf)
         return NULL;
     }
 
-    return decrypt(strlen((const char*)keybuf), keybuf, strlen((const char*)inbuf), inbuf);
+    return decrypt(strlen32((const char*)keybuf), keybuf, strlen32((const char*)inbuf), inbuf);
 }
 
 

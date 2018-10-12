@@ -637,8 +637,8 @@ public:
             dstname.append(nameprefix).append("::");
             const char *oldprefix = ftree->queryProp("Attr/@roxiePrefix");
             if (oldprefix&&*oldprefix) {
-                size32_t l = strlen(oldprefix);
-                if ((l+2<strlen(dstlfn))&&
+                size32_t l = strlen32(oldprefix);
+                if ((l+2<strlen32(dstlfn))&&
                     (memicmp(oldprefix,dstlfn,l)==0)&&
                     (dstlfn[l]==':') && (dstlfn[l+1]==':'))
                     dstlfn += l+2;

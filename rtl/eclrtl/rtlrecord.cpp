@@ -408,7 +408,7 @@ void RtlRecord::calcRowOffsets(size_t * variableOffsets, const void * _row, unsi
         for (unsigned i = 0; i < maxVarField; i++)
         {
             unsigned fieldIndex = variableFieldIds[i];
-            size32_t offset = fixedOffsets[fieldIndex] + varoffset;
+            size32_t offset = SCAST_IF_x64(size32_t,fixedOffsets[fieldIndex] + varoffset);
             size32_t fieldSize = queryType(fieldIndex)->size(row + offset, row);
             varoffset = offset+fieldSize;
             variableOffsets[i+1] = varoffset;
@@ -425,7 +425,7 @@ void RtlRecord::calcRowOffsets(size_t * variableOffsets, const void * _row, unsi
 size32_t RtlRecord::getMinRecordSize() const
 {
     if (numVarFields == 0)
-        return fixedOffsets[numFields];
+        return SCAST_IF_x64(size32_t, fixedOffsets[numFields]);
 
     size32_t minSize = 0;
     for (unsigned i=0; i < numFields; i++)
@@ -446,14 +446,14 @@ size32_t RtlRecord::deserialize(ARowBuilder & rowBuilder, IRowDeserializerSource
     {
         unsigned fieldIndex = variableFieldIds[i];
         const RtlFieldInfo *field = fields[fieldIndex];
-        size32_t fixedSize = fixedOffsets[fieldIndex];
+        size32_t fixedSize = SCAST_IF_x64(size32_t, fixedOffsets[fieldIndex]);
         byte * self = rowBuilder.ensureCapacity(offset + fixedSize, ""); // Why not field->name?
         in.read(fixedSize, self + offset);
         if (excluded(field, self, conditionValues))
             continue;
         offset = queryType(fieldIndex)->deserialize(rowBuilder, in, offset + fixedSize);
     }
-    size32_t lastFixedSize = fixedOffsets[numFields];
+    size32_t lastFixedSize = SCAST_IF_x64(size32_t, fixedOffsets[numFields]);
     byte * self = rowBuilder.ensureCapacity(offset + lastFixedSize, "");
     in.read(lastFixedSize, self + offset);
     return offset + lastFixedSize;
@@ -467,10 +467,10 @@ void RtlRecord::readAhead(IRowPrefetcherSource & in) const
         for (unsigned i=0; i < numVarFields; i++)
         {
             unsigned fieldIndex = variableFieldIds[i];
-            in.skip(fixedOffsets[fieldIndex]);
+            in.skip(SCAST_IF_x64(size32_t, fixedOffsets[fieldIndex]));
             queryType(fieldIndex)->readAhead(in);
         }
-        in.skip(fixedOffsets[numFields]);
+        in.skip(SCAST_IF_x64(size32_t, fixedOffsets[numFields]));
     }
     else
     {
@@ -578,11 +578,11 @@ size32_t RtlRecord::getRecordSize(const void *_row) const
         unsigned numOffsets = getNumVarFields() + 1;
         size_t * variableOffsets = (size_t *)alloca(numOffsets * sizeof(size_t));
         RtlRow sourceRow(*this, _row, numOffsets, variableOffsets);
-        return sourceRow.getOffset(numFields+1);
+        return SCAST_IF_x64(size32_t, sourceRow.getOffset(numFields+1));
     }
     else
     {
-        size32_t size = getFixedSize();
+        size32_t size = SCAST_IF_x64(size32_t, getFixedSize());
         if (!size)
         {
             const byte * row = static_cast<const byte *>(_row);
@@ -590,11 +590,11 @@ size32_t RtlRecord::getRecordSize(const void *_row) const
             for (unsigned i = 0; i < numVarFields; i++)
             {
                 unsigned fieldIndex = variableFieldIds[i];
-                size32_t offset = fixedOffsets[fieldIndex] + varoffset;
+                size32_t offset = SCAST_IF_x64(size32_t, fixedOffsets[fieldIndex] + varoffset);
                 size32_t fieldSize = queryType(fieldIndex)->size(row + offset, row);
                 varoffset = offset + fieldSize;
             }
-            size = fixedOffsets[numFields] + varoffset;
+            size = SCAST_IF_x64(size32_t, fixedOffsets[numFields] + varoffset);
         }
         return size;
     }
@@ -608,7 +608,7 @@ size32_t RtlRecord::calculateOffset(const void *_row, unsigned field) const
         size_t * variableOffsets = (size_t *)alloca(numOffsets * sizeof(size_t));
         RtlRow sourceRow(*this, nullptr, numOffsets, variableOffsets);
         sourceRow.setRow(_row, field);
-        return sourceRow.getOffset(field);
+        return SCAST_IF_x64(size32_t, sourceRow.getOffset(field));
     }
     else
     {
@@ -618,11 +618,11 @@ size32_t RtlRecord::calculateOffset(const void *_row, unsigned field) const
         for (unsigned i = 0; i < varFields; i++)
         {
             unsigned fieldIndex = variableFieldIds[i];
-            size32_t offset = fixedOffsets[fieldIndex] + varoffset;
+            size32_t offset = SCAST_IF_x64(size32_t, fixedOffsets[fieldIndex] + varoffset);
             size32_t fieldSize = queryType(fieldIndex)->size(row + offset, row);
             varoffset = offset + fieldSize;
         }
-        return fixedOffsets[field] + varoffset;
+        return SCAST_IF_x64(size32_t, fixedOffsets[field] + varoffset);
     }
 }
 

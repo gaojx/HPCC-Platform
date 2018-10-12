@@ -170,7 +170,7 @@ public:
                 sbuff.clear();
                 do // handle lines longer than 1024 (bit kludgy)
                 {
-                    size32_t l=(size32_t)strlen(buf);
+                    size32_t l=strlen32(buf);
                     if (!l || (buf[l-1]=='\n')) // should end in \n unless overflowed
                         break;
                     sbuff.append(buf);
@@ -348,7 +348,7 @@ public:
             PTYPE key = toKeyVal(cur.getKey());
             StringAttr &attr = * (StringAttr *) properties.getValue(key);
             char_ptr cp = fromPType(key);
-            tgt.append((size32_t) strlen(cp)+1);
+            tgt.append(strlen32(cp)+1);
             tgt.append(cp);
             tgt.append(attr);
             it.next();

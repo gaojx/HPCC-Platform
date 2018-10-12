@@ -154,7 +154,7 @@ MappingKey::MappingKey(const void * inKey, int keysize)
 {
   int ksm = keysize;
   if (!ksm)
-     ksm = (size32_t)strlen((char *) inKey) + 1;
+     ksm = strlen32((char *) inKey) + 1;
   else if (ksm<0)
   {
      if (ksm==PSTRINGDATA) {
@@ -162,7 +162,7 @@ MappingKey::MappingKey(const void * inKey, int keysize)
      }
      else {
        ksm = -ksm;
-       ksm += (size32_t)strlen((char *) inKey + ksm) + 1;
+       ksm += strlen32((char *) inKey + ksm) + 1;
      }
   }
 
@@ -472,7 +472,7 @@ extern jlib_decl IAtom * createLowerCaseAtom(const char *value)
 {
     if (!value) return NULL;
 
-    unsigned len = strlen(value);
+    unsigned len = strlen32(value);
     const byte * src = (const byte *)value;
     char * lower = (char *)alloca(len+1);
     for (unsigned i=0; i < len; i++)

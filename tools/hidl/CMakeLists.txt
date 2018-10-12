@@ -40,6 +40,8 @@ set (    SRCS
          hidl_utils.cpp 
          hidlcomp.cpp 
          main.cpp 
+         hidllex.l
+         hidlgram.y
     )
 
 include_directories ( 

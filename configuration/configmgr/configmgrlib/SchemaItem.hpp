@@ -15,9 +15,10 @@
     limitations under the License.
 ############################################################################## */
 
-
 #ifndef _CONFIG2_CONFIGITEM_HPP_
 #define _CONFIG2_CONFIGITEM_HPP_
+
+#pragma warning (disable:4251)
 
 #include <string>
 #include <memory>

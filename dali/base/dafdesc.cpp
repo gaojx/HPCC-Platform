@@ -216,7 +216,7 @@ void ClusterPartDiskMapSpec::fromProp(IPropertyTree *tree)
     StringBuffer dir;
     if (tree&&tree->getProp("@directory",dir)) {
         const char * base = queryBaseDirectory(grp_unknown, 0, SepCharBaseOs(getPathSepChar(dir.str())));
-        size32_t l = strlen(base);
+        size32_t l = strlen32(base);
         if ((memcmp(base,dir.str(),l)!=0)||((l!=dir.length())&&!isPathSepChar(dir.charAt(l))))
             defrep = 0;
     }
@@ -1047,7 +1047,7 @@ class CFileDescriptor:  public CFileDescriptorBase, implements ISuperFileDescrip
                 if (*t) { // not full match
                     while ((d!=s)&&!isPathSepChar(*(d-1)))
                         d--;
-                    dir.setLength(d-s);
+                    dir.setLength(SCAST_IF_x64(size32_t,d-s));
                     s = dir.str(); // paranoid
                     if (dir.length()<=2) // must be at least "/x/" or "d:\"
                         break; // no common dir
@@ -1540,7 +1540,7 @@ public:
     void setDefaultDir(const char *dirname)
     {
         const char *s=dirname;
-        size32_t l = strlen(s);
+        size32_t l = strlen32(s);
         char sc = 0;
         if ((l>1)&&(isPathSepChar(dirname[l-1]))&&(strcmp(dirname+1,":\\")!=0)) {
             l--;
@@ -2485,7 +2485,7 @@ void setBaseDirectory(const char * dir, unsigned replicateLevel, DFD_OS os)
     StringBuffer out;
     if (!dir||!*dir||!isAbsolutePath(dir))
         throw MakeStringException(-1,"setBaseDirectory(%s) requires an absolute path",dir ? dir : "null");
-    size32_t l = strlen(dir);
+    size32_t l = strlen32(dir);
     if ((l>3)&&(isPathSepChar(dir[l-1])))
         l--;
     switch (os) {
@@ -2630,7 +2630,7 @@ StringBuffer &makePhysicalPartName(const char *lname, unsigned partno, unsigned 
             while (*s&&(si!=3)) {
                 if (isPathSepChar(*s)) {
                     if (os!=DFD_OSdefault)
-                        path.setCharAt(s-sb,OsSepChar(os));
+                        path.setCharAt(SCAST_IF_x64(unsigned,s-sb),OsSepChar(os));
                     si++;
                 }
                 s++;

@@ -183,7 +183,7 @@ unsigned applyNodes(const char *grpip, ApplyMode mode, unsigned ver, bool isdali
                             return;
                         while (*rv&&(*rv!='-'))
                             rv++;
-                        verstr.setLength(rv-verstr.str());
+                        verstr.setLength(SCAST_IF_x64(unsigned, rv-verstr.str()));
                         if ((mode==AMcheckver)||(mode==AMcheckvermajor))
                             break;
 

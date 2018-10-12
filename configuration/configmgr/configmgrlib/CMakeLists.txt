@@ -51,6 +51,7 @@ if (USE_BOOST_REGEX)
         ${CMAKE_CURRENT_SOURCE_DIR}/../hpcc_support
         ${CMAKE_BINARY_DIR}
         ${CMAKE_BINARY_DIR}/oss
+        ${BOOST_REGEX_INCLUDE_DIR}
     )
 
     ADD_DEFINITIONS( -D_USRDLL -DCONFIGMGR_LIB)

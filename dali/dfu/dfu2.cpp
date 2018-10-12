@@ -90,8 +90,8 @@ int main(int argc, const char *argv[])
     unsigned i;
     unsigned j=1;
     for (i=1;i<argc;i++) {
-        if ((strlen(argv[i])>12)&&memicmp(argv[i],"DALISERVERS=",12)==0) 
-            daliServer.append(strlen(argv[i])-12,argv[i]+12);
+        if ((strlen32(argv[i])>12)&&memicmp(argv[i],"DALISERVERS=",12)==0) 
+            daliServer.append(strlen32(argv[i])-12,argv[i]+12);
         else 
             argv[j++] = argv[i];
     }

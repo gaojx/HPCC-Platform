@@ -44,6 +44,7 @@ interface IResourceContext;
 typedef size32_t (*DefaultRowCreator)(ARowBuilder & self, IResourceContext *ctx);
 
 //shouldn't really be derived from ARowBuilder - not a isA, but more efficient
+class _exp_ARowBuilder : ARowBuilder {};
 class ECLRTL_API RtlDatasetBuilder : protected ARowBuilder, public RtlCInterface
 {
 public:
@@ -596,6 +597,7 @@ public:
 
 };
 
+class _exp_ARtlDatasetCursor : ARtlDatasetCursor {};
 class ECLRTL_API RtlStreamedDatasetCursor : public ARtlDatasetCursor
 {
 public:
@@ -716,6 +718,9 @@ protected:
     size32_t minSize = 0;
     size32_t reserved = 0;
 };
+
+class _exp_ICompare : ICompare {};
+class _exp_IHash : IHash {};
 
 class ECLRTL_API CHThorDictHelper : public IHash, public ICompare
 {

@@ -823,7 +823,8 @@ static void ModuleWalk()
             memset(&modinfo,0,sizeof(modinfo));
             getModuleInformation(hProcess, hMods[i], &modinfo, sizeof(modinfo));
             GetModuleFileName( hMods[i], szModName, sizeof(szModName));
-            PrintLog("%8X %8X %8X  %s",(unsigned)modinfo.lpBaseOfDll,(unsigned)modinfo.SizeOfImage,(unsigned)modinfo.EntryPoint,szModName);
+            PrintLog("%8X %8X %8X  %s", reinterpret_cast<size_t>(modinfo.lpBaseOfDll),(unsigned)modinfo.SizeOfImage,
+				reinterpret_cast<size_t>(modinfo.EntryPoint),szModName);
         }
     }
     
@@ -1527,7 +1528,7 @@ void printStackReport(__int64 startIP)
         return;
 #ifdef _WIN32
     unsigned onstack=1234;
-    doPrintStackReport(0, 0,(unsigned)&onstack);
+    doPrintStackReport(0, 0,(size_t)&onstack);
 #elif defined(__linux__)
     DBGLOG("Backtrace:");
     void *btarray[100];
@@ -1576,12 +1577,14 @@ bool getDebuggerGetStacksCmd(StringBuffer &output)
 #endif
 
     const char *exePath = queryCurrentProcessPath();
-    if (!exePath)
+    if (exePath==nullptr)
     {
         output.append("Unable to capture stacks");
         return false;
     }
-    return output.appendf("gdb --batch -n -ex 'thread apply all bt' %s %u", exePath, GetCurrentProcessId());
+	
+	output.appendf("gdb --batch -n -ex 'thread apply all bt' %s %u", exePath, SCAST_IF_WIN_OS(unsigned, GetCurrentProcessId()));
+	return true;
 }
 
 bool getAllStacks(StringBuffer &output)

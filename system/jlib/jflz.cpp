@@ -269,7 +269,7 @@ static FASTLZ_INLINE int FASTLZ_COMPRESSOR(const void* input, int length, void* 
     ref = htab[hval];
 
     /* calculate distance to the match */
-    distance = anchor - ref;
+    distance = SCAST_IF_x64(flzuint32, anchor - ref);
 
     /* update hash table */
     *hslot = anchor;
@@ -339,7 +339,7 @@ static FASTLZ_INLINE int FASTLZ_COMPRESSOR(const void* input, int length, void* 
 
     /* length is biased, '1' means a match of 3 bytes */
     ip -= 3;
-    len = ip - anchor;
+    len = SCAST_IF_x64(flzuint32, ip - anchor);
 
     /* encode the match */
 #if FASTLZ_LEVEL==2
@@ -452,7 +452,7 @@ static FASTLZ_INLINE int FASTLZ_COMPRESSOR(const void* input, int length, void* 
   *(flzuint8*)output |= (1 << 5);
 #endif
 
-  return op - (flzuint8*)output;
+  return SCAST_IF_x64(int, op - (flzuint8*)output);
 }
 
 static FASTLZ_INLINE int FASTLZ_DECOMPRESSOR(const void* input, int length, void* output, int maxout)
@@ -583,7 +583,7 @@ static FASTLZ_INLINE int FASTLZ_DECOMPRESSOR(const void* input, int length, void
   }
   while(FASTLZ_EXPECT_CONDITIONAL(loopidx));
 
-  return op - (flzuint8*)output;
+  return SCAST_IF_x64(int, op - (flzuint8*)output);
 }
 
 #undef FASTLZ__JLIBCOMPRESSOR  // avoid being compiled twice!!

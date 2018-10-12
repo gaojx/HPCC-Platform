@@ -922,8 +922,8 @@ static void usage()
 static bool isOpt(const char *&s,const char *name)
 {
     if (s&&name) {
-        size32_t nl = strlen(name);
-        if (strlen(s)>nl) {
+        size32_t nl = strlen32(name);
+        if (strlen32(s)>nl) {
             if (memicmp(s,name,nl)==0) {
                 if (s[nl]=='=') {
                     s += nl+1;

@@ -125,7 +125,7 @@ struct cFileDesc // no virtuals
 
     static cFileDesc * create(CLargeMemoryAllocator &mem,const char *_name,unsigned n)
     {
-        size32_t sl = strlen(_name); 
+        size32_t sl = strlen32(_name); 
         if (sl>255) {
             WARNLOG(LOGPFX "File name %s longer than 255 chars, truncating",_name);
             sl = 255;
@@ -180,7 +180,7 @@ struct cFileDesc // no virtuals
 
     bool eq(const char *key)
     {
-        size32_t sl = strlen(key);
+        size32_t sl = strlen32(key);
         if (sl>255) 
             sl = 255;
         if (sl!=(byte)name[0])
@@ -209,7 +209,7 @@ struct cFileDesc // no virtuals
     
     static unsigned getHash(const char *key)
     {
-        size32_t sl = strlen(key);
+        size32_t sl = strlen32(key);
         if (sl>255) 
             sl = 255;
         return  hashc((const byte *)key,sl,17);
@@ -245,7 +245,7 @@ struct cDirDesc
 
     cDirDesc(CLargeMemoryAllocator &mem,const char *_name)
     {
-        size32_t sl = strlen(_name);
+        size32_t sl = strlen32(_name);
         if (sl>255) {
             WARNLOG(LOGPFX "Directory name %s longer than 255 chars, truncating",_name);
             sl = 255;
@@ -275,7 +275,7 @@ struct cDirDesc
 
     bool eq(const char *key)
     {
-        size32_t sl = strlen(key);
+        size32_t sl = strlen32(key);
         if (sl>255) 
             sl = 255;
         if (sl!=(byte)name[0])
@@ -292,7 +292,7 @@ struct cDirDesc
     
     static unsigned getHash(const char *key)
     {
-        size32_t sl = strlen(key);
+        size32_t sl = strlen32(key);
         if (sl>255) 
             sl = 255;
         return  hashc((const byte *)key,sl,17);

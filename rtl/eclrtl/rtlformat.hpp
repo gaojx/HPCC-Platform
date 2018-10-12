@@ -194,7 +194,7 @@ public:
     virtual void outputInlineXml(const char *text) //for appending raw xml content
     {
         if (text && *text)
-            outputUtf8(strlen(text), text, "xml");
+            outputUtf8(strlen32(text), text, "xml");
     }
     virtual void outputInline(const char* text) { out.append(text); }
     virtual void outputQuoted(const char *text);

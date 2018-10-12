@@ -1484,7 +1484,7 @@ public:
         CriticalBlock block(sect);
         if (pipeProcess != (HANDLE)-1) {
             if (title.length())
-                PROGLOG("%s: Pipe: Waiting for process to complete %d",title.get(),(unsigned)pipeProcess);
+                PROGLOG("%s: Pipe: Waiting for process to complete %p",title.get(),pipeProcess);
 
             {
                 CriticalUnblock unblock(sect);
@@ -1507,7 +1507,7 @@ public:
         timedout = false;
         if (pipeProcess != (HANDLE)-1) {
             if (title.length())
-                PROGLOG("%s: Pipe: Waiting for process to complete %d",title.get(),(unsigned)pipeProcess);
+                PROGLOG("%s: Pipe: Waiting for process to complete %p",title.get(),pipeProcess);
 
             {
                 CriticalUnblock unblock(sect);

@@ -147,7 +147,7 @@ class CDaliCapabilityCreator: implements IDaliCapabilityCreator, public CInterfa
     { // cap is plain
         cap.setSystem(sysid.get());
         IPropertyTree *tree = root->addPropTree(tag,createPTree(tag));
-        crc = crc32(tag,strlen(tag),crc);
+        crc = crc32(tag,strlen32(tag),crc);
         if (clientpassword)
             cap.secure((const byte *)clientpassword.get(), clientpassword.length());
         if (serverpassword)
@@ -253,12 +253,12 @@ unsigned importDaliCapabilityXML_basic(const char *filename)
     Owned<IPropertyTreeIterator> it = root->getElements("*");
     ForEach(*it) {
         const char *tag = it->query().queryName();
-        crc = crc32(tag,strlen(tag),crc);
+        crc = crc32(tag,strlen32(tag),crc);
         CSystemCapability sc(it->query().queryProp("@cap"));
         crc = crc32((const char *)sc.queryKey(),FIXED_KEY_SIZE,crc);
     }
     const char *sysid=root->queryProp("@system");
-    crc = crc32(sysid,strlen(sysid),crc);   
+    crc = crc32(sysid,strlen32(sysid),crc);   
     if (root->getPropInt64("@update")!=(crc^CRCMASK))
         return 71;
     Owned<IPropertyTree>conf;

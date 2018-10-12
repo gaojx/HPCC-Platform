@@ -158,7 +158,7 @@ namespace xpp {
         return NULL;
     }
 
-    int getNsCount(){return prefix2Ns.size();}
+    int getNsCount() { return (int)prefix2Ns.size(); }
     map< string, const SXT_CHAR* >::iterator getNsBegin(){return prefix2Ns.begin();}
     map< string, const SXT_CHAR* >::iterator getNsEnd(){return prefix2Ns.end();}
 
@@ -753,7 +753,7 @@ namespace xpp {
     }
 
     SXT_CHAR* nsBufAdd(SXT_STRING s) {
-      return nsBufAdd(s.c_str(), s.size());
+      return nsBufAdd(s.c_str(), (int)s.size());
     }
       
     const SXT_STRING to_string(int i) const {

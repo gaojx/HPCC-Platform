@@ -77,7 +77,7 @@ public:
     virtual IO_Type getType() {return srcType;}
     virtual const char* getFileName(){return filename.get();}
     virtual char* getBuf(){return (char*)text.get();}
-    virtual int getLen(){return text.length();}
+    virtual int getLen(){return (int)text.length();}
     virtual StringArray& getIncludes(){return includes;}
     virtual const char *getCacheId(){return cacheId.get();}
 
@@ -154,7 +154,7 @@ void CLibXsltSource::compile()
                 compiledXslt = parseXsltFile();
             else if (srcType == IO_TYPE_BUFFER)
             {
-                xmlDocPtr xsldoc = xmlReadMemory(text.get(), text.length(), filename.get(), NULL, 0);
+                xmlDocPtr xsldoc = xmlReadMemory(text.get(), (int)text.length(), filename.get(), NULL, 0);
                 if (!xsldoc)
                     throw MakeStringException(XSLERR_InvalidSource, "XSLT source contains invalid XML\n");
                 xsldoc->_private=(void*)this;
@@ -229,7 +229,7 @@ xmlDocPtr CLibXmlSource::getParsedXml()
             if (srcType == IO_TYPE_FILE)
                 parsedXml = xmlParseFile(filename.get());
             else if (srcType == IO_TYPE_BUFFER)
-                parsedXml = xmlReadMemory(text.get(), text.length(), "source.xml", NULL, 0);
+                parsedXml = xmlReadMemory(text.get(), (int)text.length(), "source.xml", nullptr, 0);
         }
         catch(...)
         {

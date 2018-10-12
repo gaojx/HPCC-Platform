@@ -73,20 +73,20 @@ public:
             return (size32_t)-1;
         if (res!=SZ_OK)
             throw MakeStringException(-1,"LzmaEnc_MemEncode failed(%d)",(int)res);
-        return reslen+propsize+sizeof(size32_t);
+        return SCAST_IF_x64(size32_t, reslen+propsize+sizeof(size32_t));
     }
 
     size32_t expand(const void* input, size32_t inlength, void* output, size32_t maxout)
     {
         SizeT reslen = maxout;
         SizeT propsize = *(size32_t *)input;
-        SizeT inlen = inlength -= sizeof(size32_t)+propsize;
+        SizeT inlen = inlength -= SCAST_IF_x64(size32_t, sizeof(size32_t)+propsize);
         ELzmaStatus status;
         SRes res = LzmaDecode((byte *)output, &reslen, (const byte *)input+sizeof(size32_t)+propsize, &inlen, 
-            (byte *)input+sizeof(size32_t), propsize, LZMA_FINISH_END, &status, &g_Alloc);
+            (byte *)input+sizeof(size32_t), SCAST_IF_x64(unsigned, propsize), LZMA_FINISH_END, &status, &g_Alloc);
         if (res!=SZ_OK)
             throw MakeStringException(-1,"LzmaDecode failed(%d)",(int)res);
-        return reslen;
+        return SCAST_IF_x64(size32_t, reslen);
     }
 
 };

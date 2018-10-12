@@ -492,7 +492,7 @@ IPropertyTreeIterator *CRemoteConnection::doGetElements(CClientRemoteTree *tree,
     StringAttr path;
     if (xpath)
     {
-        unsigned l = strlen(xpath);
+        unsigned l = strlen32(xpath);
         if ('/' == *(xpath+l-1))
             path.set(xpath, l-1);
         else
@@ -638,7 +638,7 @@ IPropertyTree *CClientRemoteTree::_queryBranch(const char *xpath)
         StringAttr path;
         if (xpath)
         {
-            unsigned l = strlen(xpath);
+            unsigned l = strlen32(xpath);
             if ('/' == *(xpath+l-1))
                 path.set(xpath, l-1);
             else

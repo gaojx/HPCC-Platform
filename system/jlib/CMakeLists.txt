@@ -23,6 +23,8 @@
 
 project( jlib ) 
 
+include (${HPCC_SOURCE_DIR}/cmake_modules/shares.cmake)
+
 INCLUDE(CheckLibraryExists) 
 
 if (NOT WIN32 AND NOT WIN64)

@@ -486,7 +486,7 @@ public:
         if (resultoverflow)
             return false;
         StringBuffer t;
-        size32_t reslen = strlen(res);
+        size32_t reslen = strlen32(res);
         if (xslt&&xslt.length()) {
 #ifndef NO_XLS
             if (!xslproc)

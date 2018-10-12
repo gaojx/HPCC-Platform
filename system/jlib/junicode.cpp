@@ -648,7 +648,7 @@ extern jlib_decl bool replaceUtf(utfReplacementFunc func, MemoryBuffer & target,
             target.setLength(originalLength);
             return false;
         }
-        func(target, next, type, cur, input.cur-cur, cur==source);
+        func(target, next, type, cur, SCAST_IF_x64(int,input.cur-cur), cur==source);
     }
 }
 

@@ -89,21 +89,21 @@ reloop:
     }
 
     pn = a + n;
-    r = MIN(pa - a, pb - pa);
+    r = SCAST_IF_x64(int, MIN(pa - a, pb - pa));
     VECTOR v1 = a;
     VECTOR v2 = pb-r;
     while (r) {
         SWAP(v1,v2); v1++; v2++; r--;
     };
-    r = MIN(pd - pc, pn - pd - 1);
+    r = SCAST_IF_x64(int, MIN(pd - pc, pn - pd - 1));
     v1 = pb;
     v2 = pn-r;
     while (r) {
         SWAP(v1,v2); v1++; v2++; r--;
     };
     // iterates longest sequence to save stack space
-    int r1 = pb-pa;
-    int r2 = pd-pc;
+    int r1 = SCAST_IF_x64(int, pb-pa);
+    int r2 = SCAST_IF_x64(int, pd-pc);
     if (r1<r2) {
         if (r1>1)
             RECURSE(a, r1);

@@ -2484,7 +2484,7 @@ void CSysLogEventLogger::openDataLog()
 {
     CriticalBlock block(dataLogLock);
     dataLogUsed = true;
-    unsigned len = strlen(AUDIT_DATA_LOG_TEMPLATE);
+    unsigned len = strlen32(AUDIT_DATA_LOG_TEMPLATE);
     dataLogName = new char[len+1];
     strcpy(dataLogName, AUDIT_DATA_LOG_TEMPLATE);
     dataLogFile = mkstemp(dataLogName);

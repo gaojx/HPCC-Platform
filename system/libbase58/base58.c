@@ -157,7 +157,7 @@ bool b58enc(char *b58, size_t *b58sz, const void *data, size_t binsz)
         return true;
     }
     int carry;
-    ssize_t i, j, high, zcount = 0;
+    size_t i, j, high, zcount = 0;
     size_t size;
 
     while (zcount < binsz && !bin[zcount])

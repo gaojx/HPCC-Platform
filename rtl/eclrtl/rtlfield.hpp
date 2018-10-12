@@ -37,6 +37,7 @@ size32_t ECLRTL_API getMinSize(const RtlFieldInfo * const * fields);
 // base classes should always implement buildString and buildUtf8 - default implementations of buildInt/buildReal
 // are implemented in terms of them.
 // The helper function buildUtf8ViaString can be used to provide a simple implementation of buildUtf8
+
 struct ECLRTL_API RtlTypeInfoBase : public RtlTypeInfo
 {
     constexpr inline RtlTypeInfoBase(unsigned _fieldType, unsigned _length) : RtlTypeInfo(_fieldType, _length) {}
@@ -719,6 +720,8 @@ public:
 
 
 //-------------------------------------------------------------------------------------------------------------------
+
+struct ECLRTL_API _expt_RtlFieldInfo : RtlFieldInfo {};
 
 struct ECLRTL_API RtlFieldStrInfo : public RtlFieldInfo
 {

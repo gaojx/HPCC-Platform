@@ -1056,7 +1056,7 @@ void FileSprayer::calculateSplitPrefixPartition(const char * splitPrefix)
 
     //Remove the tail name from the filename
     const char * temp = remoteTargetPath.str();
-    remoteTargetPath.setLength(strrchr(temp, sepChar)-temp);
+    remoteTargetPath.setLength(SCAST_IF_x64(unsigned, strrchr(temp, sepChar)-temp));
 
     AsyncExtractBlobInfo extractor(splitPrefix, *this);
     unsigned numSources = sources.ordinality();
@@ -2001,7 +2001,7 @@ void FileSprayer::addHeaderFooter(size32_t len, const void * data, unsigned idx,
 //MORE: I should really be doing this on unicode characters and supporting \u \U
 void replaceEscapeSequence(StringBuffer & out, const char * in, bool errorIfInvalid)
 {
-    out.ensureCapacity(strlen(in)+1);
+    out.ensureCapacity(strlen32(in)+1);
     while (*in)
     {
         char c = *in++;
@@ -2217,7 +2217,7 @@ void FileSprayer::insertHeaders()
                 const char * comma = strchr(finger, ',');
                 if (comma)
                 {
-                    command.set(finger, comma-finger);
+                    command.set(finger, SCAST_IF_x64(unsigned, comma-finger));
                     finger = comma+1;
                 }
                 else

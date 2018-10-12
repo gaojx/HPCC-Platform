@@ -29,6 +29,9 @@ extern jlib_decl void ThreadYield();
 extern jlib_decl void spinUntilReady(atomic_t &value);
 extern jlib_decl void spinUntilReady(std::atomic_uint &value);
 
+class jlib_decl _export_std_atomic_uint : std::atomic_uint {};
+class jlib_decl _export_std_atomic_ulong : std::atomic_ulong {};
+
 
 #ifdef _DEBUG
 //#define SPINLOCK_USE_MUTEX // for testing
@@ -405,9 +408,18 @@ public:
 
 #else
 
+#define EXP_STL
+#ifdef EXP_STL
+#    define DECLSPECIFIER __declspec(dllexport)
+#    define EXPIMP_TEMPLATE
+#else
+#    define DECLSPECIFIER __declspec(dllimport)
+#    define EXPIMP_TEMPLATE extern
+#endif
+
 class jlib_decl  SpinLock
 {
-    std::atomic_uint value{false};  // Use an atomic_uint rather than a bool because it is more efficient on power8
+	std::atomic_uint value{false};  // Use an atomic_uint rather than a bool because it is more efficient on power8
     unsigned nesting = 0;           // This is not atomic since it is only accessed by one thread at a time
     std::atomic<ThreadId> owner{0};
     inline SpinLock(SpinLock & value __attribute__((unused))) = delete; // to prevent inadvertent use as block

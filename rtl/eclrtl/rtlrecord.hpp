@@ -200,7 +200,7 @@ public:
 
     void calcRowOffsets(size_t * variableOffsets, const void * _row, unsigned numFieldsUsed = (unsigned) -1) const;
 
-    virtual size32_t getFixedSize() const
+    virtual size_t getFixedSize() const
     {
         return numVarFields ? 0 : fixedOffsets[numFields];
     }
@@ -342,17 +342,17 @@ public:
         unsigned numOffsets = offsetInformation.getNumVarFields() + 1;
         size_t * variableOffsets = (size_t *)alloca(numOffsets * sizeof(size_t));
         RtlRow offsetCalculator(offsetInformation, row, numOffsets, variableOffsets);
-        return offsetCalculator.getRecordSize();
+        return SCAST_IF_x64(size32_t,offsetCalculator.getRecordSize());
     }
 
     virtual size32_t getFixedSize() const override
     {
-        return offsetInformation.getFixedSize();
+        return SCAST_IF_x64(size32_t, offsetInformation.getFixedSize());
     }
     // returns 0 for variable row size
     virtual size32_t getMinRecordSize() const override
     {
-        return offsetInformation.getMinRecordSize();
+        return SCAST_IF_x64(size32_t, offsetInformation.getMinRecordSize());
     }
 
 protected:
@@ -402,12 +402,12 @@ public:
 
     virtual size32_t getFixedSize() const override
     {
-        return queryRecordAccessor(true).getFixedSize();
+        return SCAST_IF_x64(size32_t, queryRecordAccessor(true).getFixedSize());
     }
     // returns 0 for variable row size
     virtual size32_t getMinRecordSize() const override
     {
-        return queryRecordAccessor(true).getMinRecordSize();
+        return SCAST_IF_x64(size32_t, queryRecordAccessor(true).getMinRecordSize());
     }
 
 

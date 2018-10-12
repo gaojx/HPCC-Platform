@@ -304,8 +304,8 @@ void testCDfsLogicalFileName()
     assertex(!cdlfn.isSet());
     assertex(!cdlfn.isForeign());
     assertex(!cdlfn.isExternal());
-    lfn=cdlfn.get(); assertex(strlen(lfn)==0);
-    lfn=cdlfn.get(true); assertex(strlen(lfn)==0);
+    lfn=cdlfn.get(); assertex(strlen32(lfn)==0);
+    lfn=cdlfn.get(true); assertex(strlen32(lfn)==0);
     cdlfn.set("xYz");
     assertex(cdlfn.isSet());
     assertex(!cdlfn.isForeign());
@@ -771,7 +771,7 @@ void TestRemoteFile3(int nfiles, int fsizemb)
         unsigned br = 0x8000/sizeof(RecordStruct);
         size32_t buffsize = br*sizeof(RecordStruct);
         unsigned curidx = 0;
-        unsigned nr = nrecs;
+        unsigned nr = SCAST_IF_x64(unsigned, nrecs);
         __int64 pos = 0;
         t=msTick();
 #if 1
@@ -785,7 +785,7 @@ void TestRemoteFile3(int nfiles, int fsizemb)
                 rs->idx = curidx++;
                 itoa(rs->idx,rs->fill,16);
                 unsigned k;
-                for (k=strlen(rs->fill);k<sizeof(rs->fill);k++)
+                for (k=strlen32(rs->fill);k<sizeof(rs->fill);k++)
                     rs->fill[k] = ' ';
                 rs->key = getRandom()%1000+1;
                 rs->check = rs->idx*rs->key;
@@ -808,7 +808,7 @@ void TestRemoteFile3(int nfiles, int fsizemb)
             buffsize = br*sizeof(RecordStruct);
             buffer = (byte *)realloc(buffer,buffsize);
             curidx = 0;
-            nr = nrecs;
+            nr = SCAST_IF_x64(unsigned, nrecs);
             pos = 0;
             unsigned r = msTick();
             IFileIO *io = file->open(IFOread);
@@ -862,7 +862,7 @@ void TestRemoteFile2()
             rs->idx = curidx++;
             itoa(rs->idx,rs->fill,16);
             unsigned k;
-            for (k=strlen(rs->fill);k<sizeof(rs->fill);k++)
+            for (k=strlen32(rs->fill);k<sizeof(rs->fill);k++)
                 rs->fill[k] = ' ';
             rs->key = getRandom()%1000+1;
             rs->check = rs->idx*rs->key;

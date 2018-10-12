@@ -272,9 +272,9 @@ bool RegExpr::init(const char *exp,bool nocase)
       longest = NULL;
       len = 0;
       for (; scan != NULL; scan = re->next(scan))
-        if (OP(scan) == EXACTLY && strlen(OPERAND(scan)) >= (size32_t) len) {
+        if (OP(scan) == EXACTLY && strlen32(OPERAND(scan)) >= (size32_t) len) {
           longest = OPERAND(scan);
-          len = strlen(OPERAND(scan));
+          len = strlen32(OPERAND(scan));
         }
       re->must = longest;
       re->mlen = (size32_t)len;
@@ -282,7 +282,7 @@ bool RegExpr::init(const char *exp,bool nocase)
   }
   int reloc = 0;
   if (re->must)
-    reloc = re->must-re->program;
+    reloc = SCAST_IF_x64(int, re->must-re->program);
   re->program = (char *)realloc(re->program,(re->code-re->program)+1);
   if (re->must)
     re->must = (char *)(re->program + reloc);
@@ -364,14 +364,14 @@ const char * RegExpr::find(const char *string,size32_t from,size32_t len,size32_
   }
   if (ret) {
     const char *ss = re->s_start[0];
-    size32_t tl = re->s_end[0]-ss;
+    size32_t tl = SCAST_IF_x64(size32_t, re->s_end[0]-ss);
     char *ds=(char *)malloc(tl+1);
     memcpy(ds,ss,tl);
     ds[tl] = 0;
     for (int i = 0;i<NSUBEXP;i++) {
       const char *ss2 = re->s_start[i];
       if (ss2) {
-        re->s_savelen[i]  = re->s_end[i]-ss2;
+        re->s_savelen[i]  = SCAST_IF_x64(size32_t, re->s_end[i]-ss2);
         re->s_savestr[i] = ds+(ss2-ss);
       }
       else {
@@ -435,12 +435,12 @@ void RegExpr::replace(const char *rs,unsigned maxlen,unsigned n)
   if (maxlen==0) return;
   const char *e=re->s_end[n];
   if (!e) return;
-  size32_t lo=e-s;
+  size32_t lo = SCAST_IF_x64(size32_t, e-s);
   size32_t lt=re->rstrlen(e);
   size32_t lr = (size32_t)strlen(rs);
   if (lr>lo) {
     size32_t d = lr-lo;                   // delta
-    size32_t l = ((e-re->findstart)+lt);  // total length
+    size32_t l = SCAST_IF_x64(size32_t, (e-re->findstart)+lt);  // total length
     size32_t r = maxlen;
     if (l>r) {
       assertex(!"replace - maxlen too small for passed string!");
@@ -845,9 +845,9 @@ void RECOMP::tail (char *p, char *val)
   }
 
   if (OP(scan) == BACK)
-    offset = scan - val;
+    offset = SCAST_IF_x64(int, scan - val);
   else
-    offset = val - scan;
+    offset = SCAST_IF_x64(int, val - scan);
   *(scan+1) = (char) ((offset>>8)&0377);
   *(scan+2) = (char) (offset&0377);
 }
@@ -932,7 +932,7 @@ bool RECOMP::match (char *prog)
         /* Inline the first character, for speed. */
         if (!equch(*opnd,*input))
           return false;
-        len = strlen(opnd);
+        len = strlen32(opnd);
         if (len > 1 && !strnequ(input, opnd, (size32_t)len))
           return false;
         input += len;
@@ -1119,15 +1119,15 @@ int RECOMP::repeat (char *p)
 void RECOMP::adjustptrs(const char *e,size32_t lo,size32_t lr)
 {
   if (lo==lr) return;
-  size32_t o=e-findstart;
+  size32_t o = SCAST_IF_x64(size32_t, e-findstart);
   for (int i=0;i<NSUBEXP;i++) {
     const char *s= s_start[i];
     if (s) {
-      size32_t so = s-findstart;
+      size32_t so = SCAST_IF_x64(size32_t, s-findstart);
       if (so>=o) {
         s_start[i]=s+lr-lo;
       }
-      so = s_end[i]-findstart;
+      so = SCAST_IF_x64(size32_t, s_end[i]-findstart);
       if (so>=o)
         s_end[i]+=lr-lo;
     }
@@ -1466,7 +1466,7 @@ bool jlib_decl WildMatchReplace(const char *src, const char *pat, const char *re
 {
     UnsignedArray wild;
     UnsignedArray wildlen;
-    if (!WildMatchNreplace(src,(size32_t)strlen(src),0,pat,(size32_t)strlen(pat),0,nocase,wild,wildlen))
+    if (!WildMatchNreplace(src,strlen32(src),0,pat,strlen32(pat),0,nocase,wild,wildlen))
         return false;
     for (;;) {
         char c = *(repl++);
@@ -1500,7 +1500,7 @@ bool jlib_decl SoundexMatch(const char *src, const char *pat)
 {
     char s1[5];
     char s2[5];
-    return memcmp(SoundexCode(src,(size32_t)strlen(src),s1),SoundexCode(pat,(size32_t)strlen(pat),s2),4)==0;
+    return memcmp(SoundexCode(src,strlen32(src),s1),SoundexCode(pat,strlen32(pat),s2),4)==0;
 }
 
 //---------------------------------------------------------------------------
@@ -1586,7 +1586,7 @@ unsigned StringMatcher::getMatch(unsigned maxLen, const char * text, unsigned & 
             if (cur->value)
             {
                 bestValue = cur->value;
-                bestLen = cursor-start;
+                bestLen = SCAST_IF_x64(unsigned, cursor-start);
             }
 
             next = *cursor++;
@@ -1594,7 +1594,7 @@ unsigned StringMatcher::getMatch(unsigned maxLen, const char * text, unsigned & 
         }
         if (cur->value)
         {
-            matchLen = cursor-start;
+            matchLen = SCAST_IF_x64(unsigned, cursor-start);
             return cur->value;
         }
     }
@@ -1692,14 +1692,14 @@ long Cla$MATCH(/* STRING s, STRING p, */ unsigned char flags)
   int nocase = flags&MATCHnocase?1:0;
   switch(flags&MATCHmask) {
   case MATCHsimple: {
-      if (s.strlen()!=p.strlen()) return false;
+      if (s.strlen32()!=p.strlen32()) return false;
       if (nocase)
         return striequ((char *)s,(char *)p);
       return strequ((char *)s,(char *)p);
     }
     break;
   case MATCHwild:
-    return WildMatch(s,s.strlen(),p,p.strlen(),nocase);
+    return WildMatch(s,s.strlen32(),p,p.strlen32(),nocase);
   case MATCHregular: {
       if (!MatchRE.init(p,nocase))
         return false;
@@ -1710,7 +1710,7 @@ long Cla$MATCH(/* STRING s, STRING p, */ unsigned char flags)
   case MATCHsoundex: {
       char s1[5];
       char s2[5];
-      return memcmp(SoundexCode(s,s.strlen(),s1),SoundexCode(p,p.strlen(),s2),4)==0;
+      return memcmp(SoundexCode(s,s.strlen32(),s1),SoundexCode(p,p.strlen32(),s2),4)==0;
     }
     break;
   }

@@ -435,20 +435,20 @@ public:
             pc--;                                   \
         }                                           \
         pn = a + n;                                 \
-        r = MIN(pa - a, pb - pa);                   \
+        r = SCAST_IF_x64(int,MIN(pa - a, pb - pa)); \
         VECTOR v1 = a;                              \
         VECTOR v2 = pb-r;                           \
         while (r) {                                 \
             SWAP(v1,v2); v1++; v2++; r--;           \
         };                                          \
-        r = MIN(pd - pc, pn - pd - 1);              \
+        r = SCAST_IF_x64(int,MIN(pd - pc, pn - pd - 1)); \
         v1 = pb;                                    \
         v2 = pn-r;                                  \
         while (r) {                                 \
             SWAP(v1,v2); v1++; v2++; r--;           \
         };                                          \
-        r1 = (pb-pa)+s;                             \
-        r2 = n-(pd-pc)+s;                           
+        r1 = SCAST_IF_x64(unsigned,(pb-pa)+s);                             \
+        r2 = SCAST_IF_x64(unsigned,n-(pd-pc)+s);                           
 
 
 class cParQSort: public cParQSortBase

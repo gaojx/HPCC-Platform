@@ -237,10 +237,10 @@ size32_t CVarToFixedTransformer::getN(byte * buffer, size32_t maxLength)
     }
 
     //Finally shift the extra records down - if there are any
-    unsigned numUsed = good - savedBuffer;
+    unsigned numUsed = SCAST_IF_x64(unsigned, good - savedBuffer);
     memmove(savedBuffer, good, savedSize-numUsed);
     savedSize -= numUsed;
-    return target-buffer;
+    return SCAST_IF_x64(size32_t, target-buffer);
 
 }
 
@@ -344,7 +344,7 @@ size32_t CVarToBlockTransformer::getN(byte * buffer, size32_t maxLength)
             break;
         good += sizeof(varLenType) + nextLen;
     }
-    savedSize = sizeGot - (good - startData);
+    savedSize = sizeGot - SCAST_IF_x64(size32_t, (good - startData));
     assertex(savedSize < EFX_BLOCK_SIZE);
     memcpy(savedBuffer, good, savedSize);
 

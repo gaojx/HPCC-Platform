@@ -32,7 +32,7 @@ void expandCommaList(StringArray & target, const char * text)
             break;
         if (comma != cur)
         {
-            StringAttr temp(cur, comma-cur);
+            StringAttr temp(cur, SCAST_IF_x64(unsigned,comma-cur));
             target.append(temp);
         }
         cur = comma+1;

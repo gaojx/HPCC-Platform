@@ -55,6 +55,9 @@
 
 static NonReentrantSpinLock * cvtLock;
 
+#define SCAST_SIZE32 static_cast<size32_t>
+#define strlen32(s) static_cast<size32_t>(strlen(s))
+
 #ifdef _WIN32
 static IRandomNumberGenerator * protectedGenerator;
 static CriticalSection * protectedGeneratorCs;
@@ -908,7 +911,7 @@ void fillRandomData(size32_t writeSz, void *_writePtr)
     unsigned *bufEnd = (unsigned *)(((byte *)writePtr)+writeSz);
     while (true)
     {
-        size32_t diff = (const byte *)bufEnd - (const byte *)writePtr;
+        size32_t diff = SCAST_SIZE32((char *)bufEnd - (char *)writePtr);
         unsigned r = generator->next();
         if (diff<sizeof(unsigned))
         {
@@ -1836,7 +1839,7 @@ unsigned runExternalCommand(StringBuffer &output, StringBuffer &error, const cha
         {
             if (input)
             {
-                pipe->write(strlen(input), input);
+                pipe->write(strlen32(input), input);
                 pipe->closeInput();
             }
             char buf[1024];

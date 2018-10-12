@@ -824,7 +824,7 @@ private:
             type.readPacked(numFields);
             info.fieldsArray = new const RtlFieldInfo * [numFields+1];
             info.fieldsArray[numFields] = nullptr;
-            for (int n = 0; n < numFields; n++)
+            for (unsigned n = 0; n < numFields; n++)
             {
                 const char *fieldName;
                 type.read(fieldName);
@@ -959,7 +959,7 @@ extern ECLRTL_API void getFieldVal(size32_t & __lenResult,char * & __result, int
     if (column >= 0)
     {
         const RtlRecord &r = metaVal.queryRecordAccessor(true);
-        if (column < r.getNumFields())
+        if ((unsigned)column < r.getNumFields())
         {
             unsigned numOffsets = r.getNumVarFields() + 1;
             size_t * variableOffsets = (size_t *)alloca(numOffsets * sizeof(size_t));
@@ -1106,7 +1106,7 @@ private:
         dbgassertex(canTranslate());
         byte * destConditions = (byte *)alloca(destRecInfo.getNumIfBlocks() * sizeof(byte));
         memset(destConditions, 2, destRecInfo.getNumIfBlocks() * sizeof(byte));
-        size32_t estimate = destRecInfo.getFixedSize();
+        size32_t estimate = SCAST_IF_x64(size32_t,destRecInfo.getFixedSize());
         bool hasBlobs = false;
         if (!estimate)
         {
@@ -1138,7 +1138,7 @@ private:
                 case FVirtualFilename:
                     {
                         const char * filename = callback.queryLogicalFilename(sourceRow.queryRow());
-                        offset = type->buildString(builder, offset, field, strlen(filename), filename);
+                        offset = type->buildString(builder, SCAST_IF_x64(size32_t, offset), field, strlen32(filename), filename);
                         break;
                     }
                 default:
@@ -1151,7 +1151,7 @@ private:
                 const RtlTypeInfo *sourceType = sourceRecInfo.queryType(matchField);
                 size_t sourceOffset = sourceRow.getOffset(matchField);
                 const byte *source = sourceRow.queryRow() + sourceOffset;
-                size_t copySize = sourceRow.getSize(matchField);
+                size32_t copySize = SCAST_IF_x64(size32_t, sourceRow.getSize(matchField));
                 if (match.matchType & match_deblob)
                 {
                     offset_t blobId = sourceType->getInt(source);
@@ -1185,9 +1185,9 @@ private:
                                 else
                                     break;
                             }
-                            copySize = sourceRow.getOffset(matchField+1) - sourceOffset;
+                            copySize = SCAST_IF_x64(size32_t, sourceRow.getOffset(matchField+1) - sourceOffset);
                         }
-                        builder.ensureCapacity(offset+copySize, field->name);
+                        builder.ensureCapacity(SCAST_IF_x64(size32_t, offset+copySize), field->name);
                         memcpy(builder.getSelf()+offset, source, copySize);
                         offset += copySize;
                         break;
@@ -1366,7 +1366,7 @@ private:
     size32_t estimateNewSize(const RtlRow &sourceRow) const
     {
         //DBGLOG("Source record size is %d", (int) sourceRow.getRecordSize());
-        size32_t expectedSize = sourceRow.getRecordSize() - fixedDelta;
+        size_t expectedSize = sourceRow.getRecordSize() - fixedDelta;
         //DBGLOG("Source record size without omitted fixed size fields is %d", expectedSize);
         ForEachItemIn(i, unmatched)
         {
@@ -1403,7 +1403,7 @@ private:
                 }
             }
         }
-        return expectedSize;
+        return SCAST_IF_x64(size32_t, expectedSize);
     }
     static bool canTranslateNonScalar(const RtlTypeInfo * type, const RtlTypeInfo * sourceType)
     {

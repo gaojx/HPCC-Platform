@@ -1825,12 +1825,12 @@ MemoryBuffer &aesDecrypt(const void *key, size_t keylen, const void *input, size
 void encrypt(StringBuffer &ret, const char *in)
 {
 #ifdef _DEBUG
-    assertex(strlen(CRYPTKEY) >= CRYPTSIZE);
+    assertex(strlen32(CRYPTKEY) >= CRYPTSIZE);
 #endif
     if (in)
     {
         MemoryBuffer out;
-        aesEncrypt(CRYPTKEY, CRYPTSIZE, in, (size32_t)strlen(in), out);
+        aesEncrypt(CRYPTKEY, CRYPTSIZE, in, strlen32(in), out);
         JBASE64_Encode(out.toByteArray(), out.length(), ret);
     }
 }
@@ -1838,7 +1838,7 @@ void encrypt(StringBuffer &ret, const char *in)
 void decrypt(StringBuffer &ret, const char *in)
 {
 #ifdef _DEBUG
-    assertex(strlen(CRYPTKEY) >= CRYPTSIZE);
+    assertex(strlen32(CRYPTKEY) >= CRYPTSIZE);
 #endif
     if (in)
     {

@@ -820,7 +820,7 @@ void Decimal::setCString(const char * buffer)
     while (isdigit(*cur))
         cur++;
 
-    unsigned numDigits = (cur-start);
+    unsigned numDigits = SCAST_IF_x64(unsigned,cur-start);
     if (numDigits > maxIntegerDigits)
     {
         overflow();
@@ -841,7 +841,7 @@ void Decimal::setCString(const char * buffer)
         byte * digit = digits + zeroDigit;
         while ((cur < limit) && (isdigit(*cur)))
             *--digit = *cur++ - '0';
-        lsb = zeroDigit - (cur-start);
+        lsb = zeroDigit - SCAST_IF_x64(unsigned, cur-start);
     }
     else
         lsb = zeroDigit;
@@ -974,7 +974,7 @@ void Decimal::setString(size32_t length, const char * buffer)
     while ((cur < limit) && (isdigit(*cur)))
         cur++;
 
-    unsigned numDigits = (cur-start);
+    unsigned numDigits = SCAST_IF_x64(unsigned, cur-start);
     if (numDigits > maxIntegerDigits)
     {
         overflow();
@@ -996,7 +996,7 @@ void Decimal::setString(size32_t length, const char * buffer)
         byte * digit = digits + zeroDigit;
         while ((cur < limit) && (isdigit(*cur)))
             *--digit = *cur++ - '0';
-        lsb = zeroDigit - (cur-start);
+        lsb = zeroDigit - SCAST_IF_x64(unsigned, cur-start);
     }
     else
         lsb = zeroDigit;
@@ -1122,7 +1122,7 @@ unsigned Decimal::doGetString(char * buffer) const
                 *cur++ = '0';
         }
     }
-    return cur-buffer;
+    return SCAST_IF_x64(unsigned, cur-buffer);
 }
 
 

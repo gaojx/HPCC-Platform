@@ -60,7 +60,7 @@ void doStuff()
     else {
         // save as raw binary
         printf("TestBranch2: set (as blob)\n",s.str());
-        root->setPropBin("TestBranch2",strlen(MyTestXML),MyTestXML); // include NULL
+        root->setPropBin("TestBranch2",strlen32(MyTestXML),MyTestXML); // include NULL
     }
     IPropertyTree *br3 = root->queryPropTree("TestBranch3");
     if (br3) {

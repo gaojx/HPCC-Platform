@@ -229,7 +229,7 @@ public:
     virtual void finish(size32_t keyedSize) override;
     virtual void describe(StringBuffer &out) const override;
     virtual bool matchesBuffer(const void *buffer, unsigned lastSeg, unsigned &matchSeg) const override;
-    virtual unsigned getFieldOffset(unsigned idx) const override { return recInfo.getFixedOffset(idx); }
+    virtual unsigned getFieldOffset(unsigned idx) const override { return SCAST_IF_x64(unsigned,recInfo.getFixedOffset(idx)); }
     virtual bool canMatch() const override;
 };
 

@@ -333,7 +333,7 @@ public:
                 if (str_val_)
                 {
                     const char *val = str_val_;
-                    int len=strlen(val);
+                    int len=strlen32(val);
                     if (len>=2 && *val=='\"')
                     {
                         val++;
@@ -517,7 +517,7 @@ public:
         if (xmlTag) {
             if (*xmlTag == '"' || *xmlTag == '\'')
                 xmlTag++;
-            int len = strlen(xmlTag);
+            int len = strlen32(xmlTag);
             if (*(xmlTag+len-1)=='"' || *(xmlTag+len-1)=='\'')
                 len--;
             strncpy(buffer, xmlTag, len);
@@ -564,7 +564,7 @@ public:
         const char *xsd_type = getMetaString("xsd_type", NULL);
         if (xsd_type && *xsd_type=='\"')
            xsd_type++;
-        unsigned pcl = strlen("tns:ArrayOf");
+        unsigned pcl = strlen32("tns:ArrayOf");
         //purely for compatability with scapps ESDL processing... ESDL should never have relied on interpreting the xsd_type which is for external use
         if (xsd_type && !strncmp("tns:ArrayOf", xsd_type, pcl))
         {

@@ -391,10 +391,10 @@ void doTransform()
         //for(int i = 0; i < 1; i++)
         {
             Owned<IXslTransform> transform = processor->createXslTransform();
-            transform->setXmlSource(theInputDocument, strlen(theInputDocument));
+            transform->setXmlSource(theInputDocument, strlen32(theInputDocument));
             transform->setIncludeHandler(new CIncludeHandler);
             // Attention - the callback getXsl is called everytime the following function is called -
-            transform->setXslSource(theStylesheet, strlen(theStylesheet), "foobartest", ".");
+            transform->setXslSource(theStylesheet, strlen32(theStylesheet), "foobartest", ".");
             
             StringBuffer buf;
             
@@ -452,8 +452,8 @@ void doXmlValidation()
         StringBuffer xml, xsd;
         if (loadFile(xml, gArgv[1]) && loadFile(xsd, gArgv[2]))
         {
-            v->setXmlSource(xml, strlen(xml));
-            v->setSchemaSource(xsd, strlen(xsd));
+            v->setXmlSource(xml, strlen32(xml));
+            v->setSchemaSource(xsd, strlen32(xsd));
         }
         else
             return;

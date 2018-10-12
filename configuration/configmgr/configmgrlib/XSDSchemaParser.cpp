@@ -196,7 +196,7 @@ std::string XSDSchemaParser::getXSDAttributeValue(const pt::ptree &tree, const s
     {
         value = tree.get<std::string>(attrName);
     }
-    catch (std::exception &e)
+    catch (std::exception &)
     {
         if (throwIfNotPresent)
             throw(ParseException("Missing attribute " + attrName + "."));
@@ -665,7 +665,14 @@ void XSDSchemaParser::processXSDFiles(const std::string &path, const std::string
                     // If the file has an XSD extension and not previously processed, build the fully
                     // qualified name and parse it.
                     std::string ext = filename.substr(dotPos + 1);
+#ifndef _WIN32
+					// somehow this does not compile on VS 2015
                     std::transform(ext.begin(), ext.end(), ext.begin(), tolower);
+#else
+					auto it = ext.begin(), last = ext.end(), tgt=ext.begin();
+					while (it != last) 
+						*tgt++ = tolower(*it++);
+#endif
                     if (ext == "xsd" && m_pSchemaItem->addUniqueName(filename))
                     {
                         std::string fullyQualifiedFilePath = path;

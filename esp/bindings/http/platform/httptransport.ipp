@@ -181,7 +181,7 @@ public:
             return (m_content_type.length()==0);
 
         return ( (m_content_length > 0 || Utils::strncasecmp(HTTP_TYPE_FORM_ENCODED,type,sizeof(HTTP_TYPE_FORM_ENCODED)-1)==0)
-            && Utils::strncasecmp(m_content_type.get(), type, strlen(type)) == 0);
+            && Utils::strncasecmp(m_content_type.get(), type, strlen32(type)) == 0);
     }
 
     virtual bool isSoapMessage();
@@ -221,7 +221,7 @@ public:
             return m_multipart.get();
         else
         {
-            if(Utils::strncasecmp(m_content_type.get(), "multipart", strlen("multipart")) != 0)
+            if(Utils::strncasecmp(m_content_type.get(), "multipart", strlen32("multipart")) != 0)
                 return NULL;
             else
             {
@@ -235,12 +235,12 @@ public:
     {
         if ((m_content_type.length() > 0) && 
             (Utils::strncasecmp(m_content_type.get(), "text", 4) == 0 
-             || Utils::strncasecmp(m_content_type.get(), HTTP_TYPE_SOAP, strlen(HTTP_TYPE_SOAP)) == 0 
-             || Utils::strncasecmp(m_content_type.get(), HTTP_TYPE_MULTIPART_RELATED, strlen(HTTP_TYPE_MULTIPART_RELATED)) == 0 
-             || Utils::strncasecmp(m_content_type.get(), HTTP_TYPE_MULTIPART_FORMDATA, strlen(HTTP_TYPE_MULTIPART_FORMDATA)) == 0 
-             || Utils::strncasecmp(m_content_type.get(), HTTP_TYPE_FORM_ENCODED, strlen(HTTP_TYPE_FORM_ENCODED)) == 0 
-             || Utils::strncasecmp(m_content_type.get(), HTTP_TYPE_SVG_XML, strlen(HTTP_TYPE_SVG_XML)) == 0 
-             || Utils::strncasecmp(m_content_type.get(), HTTP_TYPE_JAVASCRIPT, strlen(HTTP_TYPE_JAVASCRIPT)) == 0))
+             || Utils::strncasecmp(m_content_type.get(), HTTP_TYPE_SOAP, strlen32(HTTP_TYPE_SOAP)) == 0 
+             || Utils::strncasecmp(m_content_type.get(), HTTP_TYPE_MULTIPART_RELATED, strlen32(HTTP_TYPE_MULTIPART_RELATED)) == 0 
+             || Utils::strncasecmp(m_content_type.get(), HTTP_TYPE_MULTIPART_FORMDATA, strlen32(HTTP_TYPE_MULTIPART_FORMDATA)) == 0 
+             || Utils::strncasecmp(m_content_type.get(), HTTP_TYPE_FORM_ENCODED, strlen32(HTTP_TYPE_FORM_ENCODED)) == 0 
+             || Utils::strncasecmp(m_content_type.get(), HTTP_TYPE_SVG_XML, strlen32(HTTP_TYPE_SVG_XML)) == 0 
+             || Utils::strncasecmp(m_content_type.get(), HTTP_TYPE_JAVASCRIPT, strlen32(HTTP_TYPE_JAVASCRIPT)) == 0))
         {
             return true;
         }

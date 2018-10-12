@@ -77,7 +77,7 @@ bool connectionRemoteMachine(const StringBuffer& sPath, IConstEnvironment* pCons
   {
     const char* spath = sPath.str();
     const char* cpos = strchr(spath + 2, '\\');
-    int pos = cpos? cpos - spath : -1;
+    int pos = cpos? SCAST_IF_x64(int, cpos - spath) : -1;
 
     if (pos != -1)
     {

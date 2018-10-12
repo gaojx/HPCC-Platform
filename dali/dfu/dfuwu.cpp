@@ -2007,7 +2007,7 @@ public:
         mb.append(dec);
         while (mb.length()<1024) // salt
             mb.append((char)getRandom()%255); // 255 deliberate so I can add stuff later
-        Csimplecrypt c((const byte *)wuid, strlen(wuid), mb.length());
+        Csimplecrypt c((const byte *)wuid, strlen32(wuid), mb.length());
         c.encrypt((void *)mb.toByteArray());
         queryRoot()->setPropBin("Data",mb.length(),mb.toByteArray());
     }
@@ -2019,7 +2019,7 @@ public:
             assertex(parent);
             const char *wuid = parent->root->queryName();
             assertex(wuid&&*wuid);
-            Csimplecrypt c((const byte *)wuid, strlen(wuid), mb.length());
+            Csimplecrypt c((const byte *)wuid, strlen32(wuid), mb.length());
             c.decrypt((void *)mb.toByteArray());
             mb.read(enc).read(dec);
             return true;
@@ -3101,7 +3101,7 @@ public:
                         query.append('~');
                     query.append('"').append(fv).append("\"]");
                 }
-                fv += strlen(fv)+1;
+                fv += strlen32(fv)+1;
             }
         }
         query.insert(0, namefilter.get());

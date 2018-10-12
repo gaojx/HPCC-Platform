@@ -214,7 +214,7 @@ interface IValueSet : public IInterface
 
     //If field lies within a range return true and set matchRange to the index of the range.
     //If field is outside a range return false and set matchRange to the index of the next range
-    virtual int findForwardMatchRange(const byte * field, unsigned & matchRange) const = 0;
+    virtual bool findForwardMatchRange(const byte * field, unsigned & matchRange) const = 0;
 
     // Does this field match any range?
     virtual bool matches(const byte * field) const = 0;
@@ -296,7 +296,7 @@ public:
     virtual MemoryBuffer & serialize(MemoryBuffer & out) const = 0;
 
     virtual unsigned numRanges() const = 0;
-    virtual int findForwardMatchRange(const RtlRow & row, unsigned & matchRange) const = 0;
+    virtual bool findForwardMatchRange(const RtlRow & row, unsigned & matchRange) const = 0;
     virtual unsigned queryScore() const = 0;
     virtual IFieldFilter *remap(unsigned newFieldIndex) const = 0;
 

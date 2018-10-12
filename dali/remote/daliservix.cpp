@@ -132,7 +132,7 @@ char * makePath(char *path,const char *dir,const char *tail)
     unsigned l = 0;
     if (dir&&(tail[0]!='/')) {
         strcpy(path,dir);
-        l = strlen(path);
+        l = strlen32(path);
         if (l && (path[l-1]!='/'))
             path[l++] = '/';
     }
@@ -203,7 +203,7 @@ Normal:
 
 bool WildMatch(const char *src, const char *pat, bool nocase)
 {
-    return WildMatch(src,strlen(src),pat,strlen(pat),nocase);
+    return WildMatch(src,strlen32(src),pat,strlen32(pat),nocase);
 }
 
 static unsigned long crc_32_tab[] = { /* CRC polynomial 0xedb88320 */
@@ -599,7 +599,7 @@ public:
         if (!s)
             append("");
         else {
-            size32_t l=strlen(s)+1;
+            size32_t l=strlen32(s)+1;
             memcpy(reserve(l),s,l);
         }
         return *this;
@@ -642,7 +642,7 @@ public:
 
     char *readStr()
     {
-        size32_t l = strlen((char *)buffer+readPos)+1;
+        size32_t l = strlen32((char *)buffer+readPos)+1;
         char *ret = (char *)malloc(l);
         memcpy(ret,buffer+readPos,l);
         readPos+=l;
@@ -1319,7 +1319,7 @@ public:
             const char *fromtail = findTail(from);
             if (fromtail!=from) {
                 unsigned l = fromtail-from;
-                char * s = (char *)malloc(strlen(to)+l+1);
+                char * s = (char *)malloc(strlen32(to)+l+1);
                 memcpy(s,from,l);
                 strcpy(s+l,to);
                 free(to);

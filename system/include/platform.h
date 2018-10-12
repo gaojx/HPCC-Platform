@@ -109,6 +109,37 @@ typedef memsize_t rowsize_t;
 #define U64C(n) n##ULL
 #endif
 
+//======= 64 bit migration =========
+#define strlen_int(src) static_cast<int>(strlen(src))
+
+#ifdef __64BIT__
+#define SCAST_IF_x64(type,value) static_cast<type>(value)
+#define RCAST_IF_x64(type,value) reinterpret_cast<type>(value)
+#define strlen32(src) static_cast<size32_t>(strlen(src))
+#define sizeof32(type) static_cast<size32_t>(sizeof(type))
+#else
+#define SCAST_IF_x64(type,value) (value)
+#define RCAST_IF_x64(type,value) (value)
+#define strlen32 strlen
+#define sizeof32 sizeof
+#endif
+
+#if defined(WIN32) && defined(__64BIT__)
+#define SCAST_IF_WIN64(type,value) static_cast<type>(value)
+#define RCAST_IF_WIN64(type,value) reinterpret_cast<type>(value) 
+#else
+#define SCAST_IF_WIN64(type,value) (value)
+#define RCAST_IF_WIN64(type,value) (value)
+#endif
+
+#ifdef WIN32
+#define SCAST_IF_WIN_OS(type,value) static_cast<type>(value)
+#define RCAST_IF_WIN_OS(type,value) reinterpret_cast<type>(value)
+#else
+#define SCAST_IF_WIN_OS(type,value) (value)
+#define RCAST_IF_WIN_OS(type,value) (value)
+#endif
+// ==== end 64 bit migration =========
 // **** END   OF X-PLATFORM SECTION ****
 #if defined(_WIN32)
 
@@ -169,10 +200,11 @@ typedef memsize_t rowsize_t;
 #define LibraryExtension           ".lib"
 #define ProcessExtension           ".exe"
 #define GetSharedProcedure(h,name) GetProcAddress(h,(char *)name)
-#define LoadSucceeded(h)           ((memsize_t)h >= 32)
+#define LoadSucceeded(h)           (SCAST_IF_x64(unsigned,RCAST_IF_WIN_OS(size_t,h)) >= 32)
 #define GetSharedObjectError()     GetLastError()
 #define strtok_r(a,b,c)            j_strtok_r(a,b,c)
 #define __builtin_prefetch(addr)   _mm_prefetch((const char *)(addr), _MM_HINT_T0)
+#define GetErrorString()			   strerror(GetLastError())
 
 #define __thread __declspec(thread)
 
@@ -209,43 +241,44 @@ typedef unsigned long MaxCard;
 // MSVC 2008 in debug (perhaps other versions too) will throw exception if negative passed (see bug: #32013)
 #if (_MSC_VER>=1400) // >=vs2005
 #define strictmsvc_isalpha(c) isalpha(c)
-#define isalpha(c) isalpha((const unsigned char)(c))
+// isalpha(char) and isaplha(int) conflict: VC++ can't decide which one to use
+inline int isalpha_char(char c) { return isalpha((unsigned char)c); }
 
 #define strictmsvc_isupper(c) isupper(c)
-#define isupper(c) isupper((const unsigned char)(c))
+inline int isupper_char(char c) { return isupper((unsigned char)c); }
 
 #define strictmsvc_islower(c) islower(c)
-#define islower(c) islower((const unsigned char)(c))
+inline int islower_char(char c) { return islower((unsigned char)c); }
 
 #define strictmsvc_isdigit(c) isdigit(c)
-#define isdigit(c) isdigit((const unsigned char)(c))
+inline int isdigit_char(char c) { return isdigit((unsigned char)c); }
 
-#define strictmsvc_isxdigit(c) isxdigit(c)
-#define isxdigit(c) isxdigit((const unsigned char)(c))
+#define strictmsvc_isxdigit(c) isxdigit(c) 
+inline int isxdigit_char(char c) {	return isxdigit((unsigned char)c); }
 
 #define strictmsvc_isspace(c) isspace(c)
-#define isspace(c) isspace((const unsigned char)(c))
+inline int isspace_char(char c) { return isspace((unsigned char)c);	}
 
 #define strictmsvc_ispunct(c) ispunct(c)
-#define ispunct(c) ispunct((const unsigned char)(c))
+inline int ispunct_char(char c) { return ispunct((unsigned char)c); }
 
 #define strictmsvc_isalnum(c) isalnum(c)
-#define isalnum(c) isalnum((const unsigned char)(c))
+inline int isalnum_char(char c) { return isalnum((unsigned char)c); }
 
 #define strictmsvc_isprint(c) isprint(c)
-#define isprint(c) isprint((const unsigned char)(c))
+inline int isprint_char(char c) { return isprint((unsigned char)c);	}
 
 #define strictmsvc_isgraph(c) isgraph(c)
-#define isgraph(c) isgraph((const unsigned char)(c))
+inline int isgraph_char(char c) { return isgraph((unsigned char)c); }
 
 #define strictmsvc_iscntrl(c) iscntrl(c)
-#define iscntrl(c) iscntrl((const unsigned char)(c))
+inline int iscntrl_char(char c) { return iscntrl((unsigned char)c); }
 
 #define strictmsvc_tolower(c) tolower(c)
-#define tolower(c) tolower((const unsigned char)(c))
+inline int tolower_char(char c) { return tolower((unsigned char)c); }
 
 #define strictmsvc_toupper(c) toupper(c)
-#define toupper(c) toupper((const unsigned char)(c))
+inline int toupper_char(char c) { return toupper((unsigned char)c); }
 
 #endif // (_MSC_VER>=1400)
 

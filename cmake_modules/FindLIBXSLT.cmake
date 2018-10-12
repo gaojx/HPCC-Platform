@@ -1,4 +1,4 @@
-################################################################################
+﻿################################################################################
 #    HPCC SYSTEMS software Copyright (C) 2012 HPCC Systems®.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,8 +24,8 @@
 
 if (NOT LIBXSLT_FOUND)
   IF (WIN32)
-    SET (libxslt_libs "xslt libxslt")
-    SET (libexslt_libs "exslt libexslt")
+    SET (libxslt_libs "libxslt-1")
+    SET (libexslt_libs "libexslt")
   ELSE()
     SET (libxslt_libs "xslt libxslt")
     SET (libexslt_libs "exslt libexslt")
@@ -44,10 +44,11 @@ if (NOT LIBXSLT_FOUND)
       SET (osdir "unknown")
     ENDIF()
     IF (NOT ("${osdir}" STREQUAL "unknown"))
+      Message("Searching libxslt in dir: ${EXTERNALS_DIRECTORY}/libxslt/${osdir}")
       FIND_PATH (LIBXSLT_INCLUDE_DIR NAMES libxslt/xslt.h PATHS "${EXTERNALS_DIRECTORY}/libxslt/include" NO_DEFAULT_PATH)
       FIND_LIBRARY (LIBXSLT_LIBRARIES NAMES ${libxslt_libs} PATHS "${EXTERNALS_DIRECTORY}/libxslt/${osdir}" NO_DEFAULT_PATH)
-      FIND_PATH (LIBEXSLT_INCLUDE_DIR NAMES libexslt/exslt.h PATHS "${EXTERNALS_DIRECTORY}/libexslt/include" NO_DEFAULT_PATH)
-      FIND_LIBRARY (LIBEXSLT_LIBRARIES NAMES ${libexslt_libs} PATHS "${EXTERNALS_DIRECTORY}/libexslt/${osdir}" NO_DEFAULT_PATH)
+      FIND_PATH (LIBEXSLT_INCLUDE_DIR NAMES libexslt/exslt.h PATHS "${EXTERNALS_DIRECTORY}/libxslt/include" NO_DEFAULT_PATH)
+      FIND_LIBRARY (LIBEXSLT_LIBRARIES NAMES ${libexslt_libs} PATHS "${EXTERNALS_DIRECTORY}/libxslt/${osdir}" NO_DEFAULT_PATH)
     ENDIF() 
   ENDIF()
 

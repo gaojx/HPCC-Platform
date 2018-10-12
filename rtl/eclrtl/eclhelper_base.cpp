@@ -15,7 +15,11 @@
     limitations under the License.
 ############################################################################## */
 
+
 #include "platform.h"
+
+#pragma warning (disable:4275)
+#pragma warning (disable:4251)
 
 #include "eclrtl.hpp"
 #include "eclhelper.hpp"
@@ -26,6 +30,7 @@
 #include "eclhelper_base.hpp"
 #include "rtlbcd.hpp"
 #include "rtlrecord.hpp"
+
 
 //---------------------------------------------------------------------------
 

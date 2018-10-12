@@ -1253,7 +1253,7 @@ unsigned StatsScopeId::getHash() const
     {
     case SSTfunction:
     case SSTunknown:
-        return hashc((const byte *)name.get(), strlen(name), (unsigned)scopeType);
+        return hashc((const byte *)name.get(), strlen32(name), (unsigned)scopeType);
     default:
         return hashc((const byte *)&id, sizeof(id), (unsigned)scopeType);
     }

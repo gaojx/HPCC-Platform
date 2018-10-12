@@ -173,7 +173,7 @@ public:
         }
         if (str && *str)
         {
-            nl = str[strlen(str)-1]=='\n';
+            nl = str[strlen32(str)-1]=='\n';
             FPRINTF(str);
         }
         else
@@ -317,7 +317,7 @@ FILE *xfopen(const char *path, const char *mode)
 {
     char *s, *e, *p;
     p = s = strdup(path);
-    e = s+strlen(path);
+    e = s+strlen32(path);
     bool alt=false;
     for (; p<e; p++)
     {

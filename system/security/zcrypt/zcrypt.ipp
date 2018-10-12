@@ -44,13 +44,14 @@
 #include <openssl/x509.h>
 #undef  crypt
 #else
-#include <openssl/x509.h>
+//#include <openssl/x509.h>
 #endif
 
 #include <openssl/ssl.h>
 #include <openssl/pem.h>
 #include <openssl/err.h>
 #include <openssl/conf.h>
+
 
 typedef struct linkedlist_filetozip_s
 {

@@ -5469,7 +5469,7 @@ void writeAccessMap(const char * rawServiceAccessList, const char * methodname, 
     outf("%sMapStringTo<SecAccessFlags> accessmap;\n", indent.str());
     if (rawServiceAccessList && *rawServiceAccessList)
     {
-        int listlen = strlen(rawServiceAccessList);
+        int listlen = strlen32(rawServiceAccessList);
         StrBuffer currAccessName;
         StrBuffer currAccessLevel;
         bool nameComplete = false;

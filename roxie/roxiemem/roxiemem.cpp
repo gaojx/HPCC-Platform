@@ -15,6 +15,7 @@
     limitations under the License.
 ############################################################################## */
 
+#include <platform.h>
 #include "roxiemem.hpp"
 #include "roxierowbuff.hpp"
 #include "jlog.hpp"
@@ -199,7 +200,9 @@ inline bool isNullBlock(unsigned block)
 template <typename VALUE_TYPE, typename ALIGN_TYPE>
 inline VALUE_TYPE align_pow2(VALUE_TYPE value, ALIGN_TYPE alignment)
 {
-    return (value + alignment -1) & ~((VALUE_TYPE)(alignment) -1);
+	// warning: ~: zero extending size32_t to size_t of greater size
+    //return (value + alignment -1) & ~((VALUE_TYPE)(alignment) -1);
+	return static_cast<VALUE_TYPE>(value + alignment - 1) & ~((VALUE_TYPE)(alignment)-1);
 }
 
 #define PAGES(x, alignment)    (((x) + ((alignment)-1)) / (alignment))           // hope the compiler converts to a shift
@@ -243,7 +246,7 @@ static void initializeHeap(bool allowHugePages, bool allowTransparentHugePages, 
 
     heapBitmapSize = (unsigned)bitmapSize;
     heapTotalPages = (unsigned)totalPages;
-    heapLargeBlockGranularity = largeBlockGranularity;
+    heapLargeBlockGranularity = SCAST_IF_x64(unsigned,largeBlockGranularity);
     heapLargeBlockCallback = largeBlockCallback;
 
     heapNotifyUnusedEachFree = !retainMemory;
@@ -912,7 +915,7 @@ static void *subrealloc_aligned(void *ptr, unsigned pages, unsigned newPages)
     {
         CriticalBlock b(heapBitCrit);
         unsigned shortfall = newPages - pages;
-        unsigned topOffset = pageOffset + pages;
+        unsigned topOffset = SCAST_IF_x64(unsigned,pageOffset + pages);
         // First see if we can find n free bits above the allocated region
         unsigned wordOffset = (unsigned) (topOffset / HEAP_BITS);
         if (wordOffset < heapBitmapSize)
@@ -989,8 +992,8 @@ static void *subrealloc_aligned(void *ptr, unsigned pages, unsigned newPages)
             if (!shortfall)
             {
                 pageOffset -= needBelow;
-                clearBits(pageOffset, needBelow);
-                clearBits(topOffset, foundAbove);
+                clearBits(SCAST_IF_x64(unsigned,pageOffset), needBelow);
+                clearBits(SCAST_IF_x64(unsigned,topOffset), foundAbove);
                 // NOTE: it's up to the caller to move the data - they know how much of it they actually care about.
                 return heapBase + pageOffset*HEAP_ALIGNMENT_SIZE;
             }
@@ -2233,7 +2236,7 @@ protected:
 
     inline unsigned _sizeInPages() const
     {
-        return PAGES(chunkCapacity + dataOffset(), HEAP_ALIGNMENT_SIZE);
+        return (unsigned)PAGES(chunkCapacity + dataOffset(), HEAP_ALIGNMENT_SIZE);
     }
 
     static inline memsize_t calcCapacity(memsize_t requestedSize)
@@ -2417,7 +2420,7 @@ public:
 inline unsigned heapletToBlock(Heaplet * heaplet)
 {
     dbgassertex(heaplet);
-    return ((char *)heaplet - heapBase) / HEAP_ALIGNMENT_SIZE;
+    return SCAST_IF_x64(unsigned, ((char *)heaplet - heapBase)) / HEAP_ALIGNMENT_SIZE;
 }
 
 inline Heaplet * blockToHeaplet(unsigned block)
@@ -3516,7 +3519,7 @@ char * ChunkedHeaplet::allocateSingle(unsigned allocated, bool incCounter, unsig
         {
             //Scan through all the memory, checking for a block marked as free - should terminate very quickly unless highly fragmented
             const size_t startOffset = nextMatchOffset;
-            size32_t offset = startOffset;
+            size32_t offset = (size32_t)startOffset;
             for (;;)
             {
                 ret = data() + offset;
@@ -3542,7 +3545,7 @@ char * ChunkedHeaplet::allocateSingle(unsigned allocated, bool incCounter, unsig
             }
 
             // either (offset - startOffset) or (curFreeBase - startOffset) + offset.  Simplified to...
-            unsigned thisDistance = ((offset > startOffset) ? 0 : curFreeBase) + (offset - startOffset) - size;
+            unsigned thisDistance = ((offset > startOffset) ? 0 : curFreeBase) + SCAST_IF_x64(unsigned, (offset - startOffset)) - size;
             heap->updateDistanceScanned(thisDistance);
             nextMatchOffset = offset;
             //save offset
@@ -4640,7 +4643,7 @@ public:
     virtual const char *cloneVString(const char *str)
     {
         if (str)
-            return cloneVString(strlen(str), str);
+            return cloneVString(strlen32(str), str);
         else
             return NULL;
     }
@@ -5651,7 +5654,7 @@ void CHeap::throwHeapExhausted(unsigned allocatorId, unsigned pages) const
 //MORE: Make this a nested class??
 HugeHeaplet * CHugeHeap::allocateHeaplet(memsize_t _size, unsigned allocatorId, unsigned maxSpillCost)
 {
-    unsigned numPages = PAGES(_size + HugeHeaplet::dataOffset(), HEAP_ALIGNMENT_SIZE);
+    unsigned numPages = (unsigned)PAGES(_size + HugeHeaplet::dataOffset(), HEAP_ALIGNMENT_SIZE);
 
     for (;;)
     {
@@ -5690,8 +5693,8 @@ void * CHugeHeap::doAllocate(memsize_t _size, unsigned allocatorId, unsigned max
 
 void CHugeHeap::expandHeap(void * original, memsize_t copysize, memsize_t oldcapacity, memsize_t newsize, unsigned activityId, unsigned maxSpillCost, IRowResizeCallback & callback)
 {
-    unsigned newPages = PAGES(newsize + HugeHeaplet::dataOffset(), HEAP_ALIGNMENT_SIZE);
-    unsigned oldPages = PAGES(oldcapacity + HugeHeaplet::dataOffset(), HEAP_ALIGNMENT_SIZE);
+    unsigned newPages = (unsigned)PAGES(newsize + HugeHeaplet::dataOffset(), HEAP_ALIGNMENT_SIZE);
+    unsigned oldPages = (unsigned)PAGES(oldcapacity + HugeHeaplet::dataOffset(), HEAP_ALIGNMENT_SIZE);
     void *oldbase =  (void *) ((memsize_t) original & HEAP_ALIGNMENT_MASK);
     HugeHeaplet * oldHeaplet = (HugeHeaplet *)oldbase;
     assertex(oldHeaplet->isWithinHeap(this));
